@@ -1,0 +1,423 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../layouts/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2.5">
+                    <i class="fas fa-mosque text-emerald-600"></i> Profil Lembaga Madrasah
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-500 font-medium">Informasi resmi identitas madrasah, logo lembaga, legalitas NSM/NPSN, visi misi, dan dewan guru</p>
+            </div>
+            <div class="flex items-center gap-2.5">
+                <button onclick="document.getElementById('uploadLogoModal').classList.remove('hidden')" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs border border-slate-200/90 shadow-sm transition-all hover:scale-105">
+                    <i class="fas fa-camera text-emerald-600"></i>
+                    <span>Upload Logo</span>
+                </button>
+                <button onclick="document.getElementById('editMadrasahModal').classList.remove('hidden')" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-xs shadow-lg shadow-brand-500/20 transition-all hover:scale-105">
+                    <i class="fas fa-edit"></i> Edit Profil Madrasah
+                </button>
+            </div>
+        </div>
+
+        <% if (message) { %>
+            <div class="p-4 rounded-xl text-sm font-bold flex items-center gap-3 <%= message.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200' %>">
+                <i class="fas <%= message.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' %> text-lg"></i>
+                <span><%= message.text %></span>
+            </div>
+        <% } %>
+
+        <!-- Madrasah Hero Profile Card -->
+        <div class="bg-gradient-to-r from-slate-900 via-brand-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-brand-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6">
+                <!-- Logo with interactive hover & click to upload -->
+                <div class="relative group cursor-pointer shrink-0" onclick="document.getElementById('uploadLogoModal').classList.remove('hidden')" title="Klik untuk mengunggah / mengganti logo madrasah">
+                    <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 p-2.5 flex items-center justify-center shadow-2xl overflow-hidden transition-transform group-hover:scale-105">
+                        <% if (madrasah.logo) { %>
+                            <img src="<%= madrasah.logo %>" alt="Logo Madrasah" class="w-full h-full object-contain drop-shadow">
+                        <% } else { %>
+                            <div class="w-full h-full rounded-2xl bg-gradient-to-br from-emerald-500 to-brand-700 flex items-center justify-center text-3xl text-white">
+                                <i class="fas fa-mosque"></i>
+                            </div>
+                        <% } %>
+                    </div>
+                    <!-- Hover Overlay Button -->
+                    <div class="absolute inset-0 bg-slate-950/75 rounded-3xl opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white transition-all text-xs font-bold gap-1 backdrop-blur-xs">
+                        <i class="fas fa-camera text-base text-brand-300 animate-bounce"></i>
+                        <span>Ubah Logo</span>
+                    </div>
+                </div>
+
+                <!-- Titles & Badges -->
+                <div class="space-y-2 flex-1">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-500 text-slate-950">
+                            <%= madrasah.jenjang || 'Madrasah Aliyah (MA)' %>
+                        </span>
+                        <span class="px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider bg-white/10 text-brand-300 border border-white/20">
+                            Akreditasi: <%= madrasah.akreditasi || 'A (Unggul)' %>
+                        </span>
+                    </div>
+
+                    <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                        <%= madrasah.name %>
+                    </h2>
+
+                    <div class="flex flex-wrap items-center gap-4 text-xs text-slate-300 font-mono pt-1">
+                        <span><strong class="text-brand-300 font-sans">NSM:</strong> <%= madrasah.nsm || '131132780001' %></span>
+                        <span>•</span>
+                        <span><strong class="text-brand-300 font-sans">NPSN:</strong> <%= madrasah.npsn || '20278910' %></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3-Column Highlights -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <!-- Pimpinan -->
+            <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm flex items-start gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Kepala Madrasah</span>
+                    <h3 class="text-sm font-black text-slate-800 mt-0.5"><%= madrasah.headmaster || 'Dr. H. Muhammad Zain, M.Pd.I' %></h3>
+                    <p class="text-xs text-slate-500 font-mono mt-0.5">NIP: <%= madrasah.headmaster_nip || '197508152002121003' %></p>
+                </div>
+            </div>
+
+            <!-- Kontak -->
+            <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm flex items-start gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0">
+                    <i class="fas fa-phone-alt"></i>
+                </div>
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Layanan & Kontak</span>
+                    <h3 class="text-sm font-bold text-slate-800 mt-0.5"><%= madrasah.phone || '(0265) 789123' %></h3>
+                    <p class="text-xs text-slate-500 truncate mt-0.5"><%= madrasah.email || 'info@madrasah.sch.id' %></p>
+                </div>
+            </div>
+
+            <!-- Alamat -->
+            <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm flex items-start gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shrink-0">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Lokasi Lembaga</span>
+                    <p class="text-xs text-slate-700 font-semibold mt-1 leading-relaxed line-clamp-2">
+                        <%= madrasah.address || 'Jl. Pendidikan Islam No. 45, Kompleks Madrasah Terpadu' %>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visi & Misi Madrasah -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Visi -->
+            <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-3">
+                <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-slate-800">Visi Madrasah</h3>
+                        <p class="text-xs text-slate-400">Arah dan cita-cita luhur madrasah</p>
+                    </div>
+                </div>
+                <div class="p-5 rounded-2xl bg-emerald-50/50 border border-emerald-100 text-sm font-bold text-slate-800 leading-relaxed italic">
+                    "<%= madrasah.vision || 'Terwujudnya Generasi Muslim yang Berakhlakul Karimah, Unggul dalam Prestasi Akademik, Sains, Teknologi, dan Berwawasan Lingkungan Global.' %>"
+                </div>
+            </div>
+
+            <!-- Misi -->
+            <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-3">
+                <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
+                    <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-lg">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-slate-800">Misi Madrasah</h3>
+                        <p class="text-xs text-slate-400">Langkah nyata mewujudkan visi pendidikan</p>
+                    </div>
+                </div>
+                <div class="text-sm text-slate-700 leading-relaxed whitespace-pre-line p-5 rounded-2xl bg-slate-50 border border-slate-100">
+<%= madrasah.mission || '1. Menanamkan nilai-nilai keimanan dan ketakwaan melalui pembiasaan ibadah dan akhlak mulia.\n2. Menyelenggarakan proses pembelajaran berbasis digital yang inovatif dan kolaboratif.\n3. Mengembangkan potensi bakat riset sains dan teknologi informasi.\n4. Membangun tata kelola madrasah yang islami, akuntabel, dan berdaya saing global.' %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dewan Guru Madrasah Section -->
+        <% const teachers = (typeof dewanGuru !== 'undefined' && Array.isArray(dewanGuru)) ? dewanGuru : []; %>
+        <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-slate-800">Dewan Guru & Pendidik Madrasah</h3>
+                        <p class="text-xs text-slate-400">Total <%= teachers.length %> guru aktif mengajar di madrasah ini</p>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('addTeacherModal').classList.remove('hidden')" class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow">
+                    <i class="fas fa-user-plus text-emerald-400"></i>
+                    <span>+ Daftarkan Guru Baru</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <% teachers.forEach(function(g) { %>
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center justify-between gap-3 hover:bg-emerald-50/40 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-brand-800 text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
+                                <%= g.name.charAt(0) %>
+                            </div>
+                            <div class="overflow-hidden">
+                                <h4 class="text-sm font-black text-slate-800 truncate"><%= g.name %></h4>
+                                <div class="text-xs text-slate-500 font-mono"><%= g.identity_number %></div>
+                                <div class="text-[11px] text-slate-400 truncate"><%= g.email || '-' %></div>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-xl text-[10px] font-black bg-white border border-slate-200 text-brand-700 shrink-0">
+                            <%= g.total_classes %> Kelas
+                        </span>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+
+        <!-- Modal Tambah Guru Baru -->
+        <div id="addTeacherModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg font-bold">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <h3 class="text-lg font-black text-slate-800">Daftarkan Guru Baru</h3>
+                    </div>
+                    <button onclick="document.getElementById('addTeacherModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 text-lg">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form action="/guru/madrasah/add-teacher" method="POST" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Nama Lengkap & Gelar</label>
+                        <input type="text" name="name" required placeholder="Contoh: Ust. H. Abdullah, S.Pd.I" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-semibold">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">NIP / NUPTK / Identitas</label>
+                        <input type="text" name="identity_number" required placeholder="Nomor Induk Pegawai" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-mono font-bold">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Alamat Email</label>
+                        <input type="email" name="email" placeholder="guru@madrasah.sch.id" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Kata Sandi Awal (Opsional)</label>
+                        <input type="text" name="password" placeholder="Default: password123" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs">
+                    </div>
+
+                    <div class="pt-4 flex items-center justify-end gap-3">
+                        <button type="button" onclick="document.getElementById('addTeacherModal').classList.add('hidden')" class="px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-bold text-xs">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-xs shadow-md">
+                            Simpan Akun Guru
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Edit Madrasah -->
+        <div id="editMadrasahModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg font-bold">
+                            <i class="fas fa-mosque"></i>
+                        </div>
+                        <h3 class="text-lg font-black text-slate-800">Edit Profil & Identitas Madrasah</h3>
+                    </div>
+                    <button onclick="document.getElementById('editMadrasahModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 text-lg">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form action="/guru/madrasah/update" method="POST" enctype="multipart/form-data" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Nama Resmi Madrasah</label>
+                        <input type="text" name="name" required value="<%= madrasah.name %>" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Jenjang</label>
+                            <select name="jenjang" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-800">
+                                <option value="Madrasah Ibtidaiyah (MI)" <%= madrasah.jenjang === 'Madrasah Ibtidaiyah (MI)' ? 'selected' : '' %>>MI (Ibtidaiyah)</option>
+                                <option value="Madrasah Tsanawiyah (MTs)" <%= madrasah.jenjang === 'Madrasah Tsanawiyah (MTs)' ? 'selected' : '' %>>MTs (Tsanawiyah)</option>
+                                <option value="Madrasah Aliyah (MA)" <%= madrasah.jenjang === 'Madrasah Aliyah (MA)' ? 'selected' : '' %>>MA (Aliyah)</option>
+                                <option value="Madrasah Aliyah Kejuruan (MAK)" <%= madrasah.jenjang === 'Madrasah Aliyah Kejuruan (MAK)' ? 'selected' : '' %>>MAK (Kejuruan)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">NSM (Statistik)</label>
+                            <input type="text" name="nsm" value="<%= madrasah.nsm || '' %>" placeholder="12 digit NSM" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-mono font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">NPSN</label>
+                            <input type="text" name="npsn" value="<%= madrasah.npsn || '' %>" placeholder="8 digit NPSN" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-mono font-bold">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Akreditasi</label>
+                            <input type="text" name="akreditasi" value="<%= madrasah.akreditasi || 'A (Unggul)' %>" placeholder="A (Unggul)" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Unggah Logo Madrasah</label>
+                            <input type="file" name="logo_file" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-50 file:text-brand-700">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Nama Kepala Madrasah</label>
+                            <input type="text" name="headmaster" value="<%= madrasah.headmaster || '' %>" placeholder="Nama & Gelar Kepala Madrasah" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">NIP Kepala Madrasah</label>
+                            <input type="text" name="headmaster_nip" value="<%= madrasah.headmaster_nip || '' %>" placeholder="NIP Kepala" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-mono">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Alamat Lengkap Madrasah</label>
+                        <input type="text" name="address" value="<%= madrasah.address || '' %>" placeholder="Jalan, No, Kelurahan, Kecamatan, Kota/Kabupaten" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">No. Telp / WA</label>
+                            <input type="text" name="phone" value="<%= madrasah.phone || '' %>" placeholder="(0265) 123456" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Email Resmi</label>
+                            <input type="email" name="email" value="<%= madrasah.email || '' %>" placeholder="info@madrasah.sch.id" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Website</label>
+                            <input type="text" name="website" value="<%= madrasah.website || '' %>" placeholder="www.madrasah.sch.id" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Visi Madrasah</label>
+                        <textarea name="vision" rows="2" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-medium"><%= madrasah.vision || '' %></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Misi Madrasah</label>
+                        <textarea name="mission" rows="4" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-medium"><%= madrasah.mission || '' %></textarea>
+                    </div>
+
+                    <div class="pt-4 flex items-center justify-end gap-3">
+                        <button type="button" onclick="document.getElementById('editMadrasahModal').classList.add('hidden')" class="px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-bold text-xs">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-xs shadow-md">
+                            Simpan Perubahan Profil
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Upload Logo Madrasah -->
+        <div id="uploadLogoModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg font-bold">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-slate-800">Upload Logo Madrasah</h3>
+                            <p class="text-[11px] text-slate-400">Pasang logo resmi lembaga madrasah</p>
+                        </div>
+                    </div>
+                    <button onclick="document.getElementById('uploadLogoModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 text-lg">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form action="/guru/madrasah/upload-logo" method="POST" enctype="multipart/form-data" class="space-y-5">
+                    <!-- Current & Preview Box -->
+                    <div class="flex flex-col items-center justify-center p-6 rounded-2xl bg-slate-50 border-2 border-dashed border-slate-200 hover:border-brand-500 transition-colors">
+                        <div class="w-24 h-24 rounded-2xl bg-white border border-slate-200 p-2 flex items-center justify-center shadow-sm overflow-hidden mb-3">
+                            <img id="logoPreviewImg" src="<%= madrasah.logo || '' %>" alt="Preview Logo" class="<%= madrasah.logo ? '' : 'hidden' %> w-full h-full object-contain">
+                            <div id="logoPlaceholder" class="<%= madrasah.logo ? 'hidden' : '' %> text-center text-slate-400">
+                                <i class="fas fa-mosque text-3xl text-slate-300"></i>
+                                <span class="block text-[10px] mt-1">Belum ada logo</span>
+                            </div>
+                        </div>
+
+                        <label class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow transition-all hover:scale-105">
+                            <i class="fas fa-cloud-upload-alt text-brand-400"></i>
+                            <span>Pilih Berkas Logo</span>
+                            <input type="file" name="logo_file" id="logoFileInput" accept="image/png, image/jpeg, image/jpg, image/webp, image/svg+xml" required class="hidden" onchange="handleLogoPreview(event)">
+                        </label>
+                        <p id="logoFileName" class="text-xs font-semibold text-emerald-600 mt-2 hidden"></p>
+                        <p class="text-[11px] text-slate-400 mt-1 text-center">Format: PNG (transparan disarankan), JPG, WEBP. Maksimal 10MB.</p>
+                    </div>
+
+                    <div class="pt-2 flex items-center justify-end gap-3">
+                        <button type="button" onclick="document.getElementById('uploadLogoModal').classList.add('hidden')" class="px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-bold text-xs">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-xs shadow-lg shadow-brand-500/20 transition-all">
+                            <i class="fas fa-check mr-1.5"></i> Simpan & Pasang Logo
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            function handleLogoPreview(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        const preview = document.getElementById('logoPreviewImg');
+                        const placeholder = document.getElementById('logoPlaceholder');
+                        const nameLabel = document.getElementById('logoFileName');
+                        preview.src = evt.target.result;
+                        preview.classList.remove('hidden');
+                        if (placeholder) placeholder.classList.add('hidden');
+                        if (nameLabel) {
+                            nameLabel.textContent = 'File terpilih: ' + file.name;
+                            nameLabel.classList.remove('hidden');
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        </script>
+    </main>
+</div>
+
+<%- include('../layouts/footer') %>

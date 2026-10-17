@@ -1,0 +1,116 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../layouts/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
+        <div>
+            <a href="/guru/exams" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1.5 mb-2">
+                <i class="fas fa-arrow-left"></i> Kembali ke Daftar Ujian
+            </a>
+            <h1 class="text-2xl font-black text-slate-800 tracking-tight">Buat Ujian CBT Baru</h1>
+            <p class="text-xs sm:text-sm text-slate-500 font-medium">Konfigurasi jadwal, durasi waktu, serta parameter keamanan anti-kecurangan</p>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8 max-w-3xl">
+            <form action="/guru/exams/create" method="POST" class="space-y-6">
+                <!-- Select Class -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Pilih Ruang Kelas</label>
+                    <select name="class_id" required class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="">-- Pilih Kelas --</option>
+                        <% classes.forEach(function(cls) { %>
+                            <option value="<%= cls.id %>"><%= cls.grade %> - <%= cls.name %></option>
+                        <% }); %>
+                    </select>
+                </div>
+
+                <!-- Exam Title & Description -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Judul Ujian</label>
+                    <input type="text" name="title" required placeholder="Contoh: Penilaian Akhir Semester (PAS) Ganjil" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Deskripsi / Petunjuk Ujian</label>
+                    <textarea name="description" rows="3" placeholder="Informasi tata tertib dan petunjuk pengerjaan soal..." class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm text-slate-800 outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                </div>
+
+                <!-- Time & Schedule -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Durasi (Menit)</label>
+                        <input type="number" name="duration_minutes" required value="60" min="5" max="300" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-black text-slate-800 outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Waktu Mulai</label>
+                        <input type="datetime-local" name="start_time" required class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-bold text-slate-800 outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Waktu Selesai</label>
+                        <input type="datetime-local" name="end_time" required class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-bold text-slate-800 outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                </div>
+
+                <!-- Security & Anti-Cheat Suite -->
+                <div class="p-6 rounded-2xl bg-gradient-to-br from-slate-900 via-brand-950 to-slate-900 text-white space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center text-lg">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-black tracking-wide">Konfigurasi Proteksi Anti-Kecurangan (Anti-Cheat)</h3>
+                            <p class="text-xs text-slate-300">Fitur keamanan terintegrasi Oemah Sinau LMS untuk menjaga integritas ujian</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-white/10">
+                        <label class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-colors">
+                            <input type="checkbox" name="randomize_questions" value="1" checked class="w-5 h-5 rounded text-brand-500 focus:ring-0">
+                            <div>
+                                <div class="text-xs font-bold text-white">Acak Urutan Soal</div>
+                                <div class="text-[10px] text-slate-400">Urutan soal berbeda untuk setiap siswa</div>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-colors">
+                            <input type="checkbox" name="randomize_options" value="1" checked class="w-5 h-5 rounded text-brand-500 focus:ring-0">
+                            <div>
+                                <div class="text-xs font-bold text-white">Acak Pilihan Jawaban</div>
+                                <div class="text-[10px] text-slate-400">Opsi A, B, C, D, E teracak otomatis</div>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer transition-colors">
+                            <input type="checkbox" name="fullscreen_required" value="1" checked class="w-5 h-5 rounded text-brand-500 focus:ring-0">
+                            <div>
+                                <div class="text-xs font-bold text-white">Mode Layar Penuh (Fullscreen)</div>
+                                <div class="text-[10px] text-slate-400">Wajib fullscreen sebelum memulai ujian</div>
+                            </div>
+                        </label>
+
+                        <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+                            <label class="block text-xs font-bold text-white mb-1">Batas Toleransi Pindah Tab</label>
+                            <div class="flex items-center gap-2">
+                                <input type="number" name="tab_switch_limit" value="3" min="1" max="10" class="w-20 px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-white font-black text-center text-sm outline-none">
+                                <span class="text-[11px] text-slate-400">Kali (Auto-submit jika melebihi)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex items-center justify-end gap-3">
+                    <a href="/guru/exams" class="px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-bold text-sm">
+                        Batal
+                    </a>
+                    <button type="submit" class="px-6 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-sm shadow-md transition-all">
+                        Lanjut ke Pengisian Soal &rarr;
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+<%- include('../layouts/footer') %>

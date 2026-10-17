@@ -1,0 +1,288 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../layouts/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 overflow-hidden">
+        
+        <!-- Student Hero Banner -->
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-950 via-teal-900 to-slate-900 text-white p-6 sm:p-8 shadow-xl border border-emerald-800/30">
+            <!-- Subtle glow aura -->
+            <div class="absolute -right-12 -bottom-12 w-80 h-80 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute top-0 right-1/4 w-60 h-60 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div class="space-y-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-400/15 text-amber-300 border border-amber-400/30 flex items-center gap-1.5">
+                            <i class="fas fa-graduation-cap text-amber-400"></i>
+                            <span>Ruang Belajar Siswa</span>
+                        </span>
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-emerald-200 border border-white/10 flex items-center gap-1.5">
+                            <i class="fas fa-mosque"></i>
+                            <span><%= (currentUser && currentUser.school_name) ? currentUser.school_name : 'MA SUNAN MURIA CLUWAK' %></span>
+                        </span>
+                    </div>
+
+                    <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white pt-1">
+                        <span id="studentGreetingText">Semangat Belajar</span>, <%= currentUser.name %>! 🚀
+                    </h1>
+
+                    <p class="text-emerald-100/80 text-xs sm:text-sm max-w-xl leading-relaxed">
+                        Akses modul materi pelajaran, kumpulkan tugas tepat waktu, dan ikuti ujian online CBT berstandar resmi langsung dari perangkat Anda.
+                    </p>
+                </div>
+
+                <!-- Join Class with Code Widget -->
+                <div class="bg-white/10 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-white/20 w-full lg:w-84 shrink-0 shadow-lg">
+                    <form action="/siswa/classes/join" method="POST" class="space-y-2.5">
+                        <label class="block text-xs font-extrabold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fas fa-key"></i>
+                            <span>Gabung Ruang Kelas Baru</span>
+                        </label>
+                        <div class="flex gap-2">
+                            <input 
+                                type="text" 
+                                name="code" 
+                                required 
+                                placeholder="Kode Kelas (mis: OS-KFPI)" 
+                                class="w-full px-3.5 py-2.5 rounded-xl bg-white/20 border border-white/25 text-white font-mono font-bold text-xs uppercase placeholder-white/50 outline-none focus:bg-white focus:text-slate-900 transition-colors"
+                            >
+                            <button type="submit" class="px-4 py-2.5 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black text-xs rounded-xl shadow-md transition-all shrink-0">
+                                Gabung
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Date & Hadith Ribbon -->
+            <div class="relative z-10 mt-6 pt-4 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-emerald-200/90 font-medium">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-calendar-day text-amber-400"></i>
+                    <span id="studentHeroDate">Memuat kalender...</span>
+                </div>
+                <div class="italic text-slate-300 text-[11px] sm:text-xs">
+                    "Barang siapa menempuh jalan untuk menuntut ilmu, Allah mudahkan baginya jalan menuju surga."
+                </div>
+            </div>
+        </div>
+
+        <!-- Flash Message -->
+        <% if (message) { %>
+            <div class="p-4 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-3 <%= message.type === 'success' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200' %>">
+                <i class="fas <%= message.type === 'success' ? 'fa-circle-check text-emerald-600' : 'fa-circle-exclamation text-red-500' %> text-lg shrink-0"></i>
+                <span><%= message.text %></span>
+            </div>
+        <% } %>
+
+        <!-- Mobile Quick Shortcuts -->
+        <div class="grid grid-cols-4 gap-2 sm:gap-4 lg:hidden">
+            <a href="/siswa/classes" class="p-3 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col items-center text-center hover:bg-emerald-50/50 transition-colors">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <span class="text-[11px] font-bold text-slate-800">Kelas</span>
+            </a>
+            <a href="/siswa/assignments" class="p-3 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col items-center text-center hover:bg-amber-50/50 transition-colors">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <span class="text-[11px] font-bold text-slate-800">Tugas</span>
+            </a>
+            <a href="/siswa/exams" class="p-3 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col items-center text-center hover:bg-purple-50/50 transition-colors">
+                <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    <i class="fas fa-laptop-code"></i>
+                </div>
+                <span class="text-[11px] font-bold text-slate-800">Ujian CBT</span>
+            </a>
+            <a href="/siswa/grades" class="p-3 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col items-center text-center hover:bg-teal-50/50 transition-colors">
+                <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center text-base mb-1.5 shadow-xs">
+                    <i class="fas fa-award"></i>
+                </div>
+                <span class="text-[11px] font-bold text-slate-800">Nilai</span>
+            </a>
+        </div>
+
+        <!-- Active Classes Grid -->
+        <div class="space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-base sm:text-lg font-black text-slate-900">Mata Pelajaran & Ruang Kelas Saya</h2>
+                    <p class="text-xs text-slate-500 font-medium">Daftar kelas yang sedang Anda ikuti pada semester ini</p>
+                </div>
+                <a href="/siswa/classes" class="text-xs font-extrabold text-emerald-700 hover:text-emerald-800 flex items-center gap-1.5 transition-colors">
+                    <span>Lihat Semua</span>
+                    <i class="fas fa-arrow-right text-[10px]"></i>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                <% if (classes.length === 0) { %>
+                    <div class="col-span-full bg-white p-8 sm:p-12 rounded-3xl border border-dashed border-slate-300 text-center shadow-xs">
+                        <div class="w-16 h-16 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center text-2xl mx-auto mb-3">
+                            <i class="fas fa-door-closed"></i>
+                        </div>
+                        <h3 class="text-base font-black text-slate-800">Belum Bergabung ke Ruang Kelas</h3>
+                        <p class="text-slate-400 text-xs mt-1 max-w-sm mx-auto">
+                            Masukkan <strong>Kode Kelas</strong> yang dibagikan oleh Bapak/Ibu Guru pada form di atas untuk mulai belajar.
+                        </p>
+                    </div>
+                <% } else { %>
+                    <% classes.forEach(function(cls) { %>
+                        <div class="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between group overflow-hidden">
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="px-2.5 py-1 rounded-xl text-xs font-black bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                        Kelas <%= cls.grade %>
+                                    </span>
+                                    <span class="text-xs font-mono font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-lg">
+                                        <%= cls.code %>
+                                    </span>
+                                </div>
+
+                                <h3 class="text-base font-black text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-1">
+                                    <%= cls.name %>
+                                </h3>
+
+                                <div class="text-xs font-semibold text-slate-500 flex items-center gap-1.5">
+                                    <i class="fas fa-chalkboard-teacher text-emerald-600"></i>
+                                    <span>Guru: <%= cls.teacher_name %></span>
+                                </div>
+
+                                <div class="flex items-center gap-4 text-xs font-bold text-slate-600 pt-2.5 border-t border-slate-100">
+                                    <span class="flex items-center gap-1 text-emerald-700 font-extrabold">
+                                        <i class="fas fa-book-open"></i> <%= cls.total_materials %> Materi
+                                    </span>
+                                    <span class="flex items-center gap-1 text-amber-700 font-extrabold">
+                                        <i class="fas fa-clipboard-check"></i> <%= cls.total_assignments %> Tugas
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="mt-5 pt-2">
+                                <a href="/siswa/classes/<%= cls.id %>" class="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-emerald-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-xs group-hover:bg-emerald-700">
+                                    <span>Buka Ruang Belajar</span>
+                                    <i class="fas fa-arrow-right text-[10px]"></i>
+                                </a>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Two Column: Pending Tasks & Scheduled Exams -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
+            
+            <!-- Pending Assignments -->
+            <div class="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-xs space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
+                        <i class="fas fa-clipboard-list text-amber-500"></i> 
+                        <span>Tugas yang Harus Diselesaikan</span>
+                    </h3>
+                    <a href="/siswa/assignments" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 transition-colors">Lihat Semua</a>
+                </div>
+
+                <div class="space-y-3">
+                    <% if (pendingAssignments.length === 0) { %>
+                        <div class="py-6 text-center text-slate-400 text-xs">
+                            <i class="fas fa-circle-check text-2xl text-emerald-400 mb-1.5 block"></i>
+                            Semua tugas telah diselesaikan atau belum ada tugas aktif! 🎉
+                        </div>
+                    <% } else { %>
+                        <% pendingAssignments.forEach(function(asg) { %>
+                            <div class="p-4 rounded-2xl bg-amber-50/40 border border-amber-100 flex items-center justify-between gap-3">
+                                <div>
+                                    <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider"><%= asg.class_name %></span>
+                                    <h4 class="text-sm font-bold text-slate-900 line-clamp-1"><%= asg.title %></h4>
+                                    <div class="text-[11px] text-amber-800 font-semibold mt-0.5 flex items-center gap-1">
+                                        <i class="far fa-clock"></i>
+                                        <span>Batas: <%= asg.deadline %></span>
+                                    </div>
+                                </div>
+                                <a href="/siswa/assignments/<%= asg.id %>" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs shrink-0 shadow-xs transition-all">
+                                    <%= asg.submission_id ? 'Lihat Tugas' : 'Kirim Tugas' %>
+                                </a>
+                            </div>
+                        <% }); %>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Scheduled Exams -->
+            <div class="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-xs space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
+                        <i class="fas fa-laptop-code text-purple-600"></i> 
+                        <span>Ujian Online (CBT) Terjadwal</span>
+                    </h3>
+                    <a href="/siswa/exams" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 transition-colors">Lihat Semua</a>
+                </div>
+
+                <div class="space-y-3">
+                    <% if (upcomingExams.length === 0) { %>
+                        <div class="py-6 text-center text-slate-400 text-xs">
+                            <i class="fas fa-calendar-check text-2xl text-slate-300 mb-1.5 block"></i>
+                            Tidak ada jadwal ujian CBT aktif saat ini.
+                        </div>
+                    <% } else { %>
+                        <% upcomingExams.forEach(function(ex) { %>
+                            <div class="p-4 rounded-2xl bg-purple-50/50 border border-purple-100 flex items-center justify-between gap-3">
+                                <div>
+                                    <span class="text-[10px] font-bold text-purple-700 uppercase tracking-wider"><%= ex.class_name %></span>
+                                    <h4 class="text-sm font-bold text-slate-900 line-clamp-1"><%= ex.title %></h4>
+                                    <div class="text-[11px] text-slate-500 font-semibold mt-0.5 flex items-center gap-1">
+                                        <i class="far fa-clock"></i>
+                                        <span>Durasi: <%= ex.duration_minutes %> Menit</span>
+                                    </div>
+                                </div>
+                                <% if (ex.session_status === 'submitted') { %>
+                                    <a href="/siswa/exams/<%= ex.id %>/result" class="px-3.5 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shrink-0 shadow-xs">
+                                        Nilai: <%= ex.total_score %>
+                                    </a>
+                                <% } else { %>
+                                    <a href="/siswa/exams/<%= ex.id %>/room" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-emerald-700 text-white font-bold text-xs shrink-0 shadow-xs transition-all">
+                                        Mulai Ujian
+                                    </a>
+                                <% } %>
+                            </div>
+                        <% }); %>
+                    <% } %>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+</div>
+
+<script>
+    // Live Indonesian Date on Student Hero
+    const studentHeroDate = document.getElementById('studentHeroDate');
+    if (studentHeroDate) {
+        const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+        studentHeroDate.textContent = new Date().toLocaleDateString('id-ID', options);
+    }
+
+    // Dynamic greeting based on time of day
+    const studentGreeting = document.getElementById('studentGreetingText');
+    if (studentGreeting) {
+        const hour = new Date().getHours();
+        let greeting = "Semangat Belajar";
+        if (hour >= 4 && hour < 11) {
+            greeting = "Selamat Pagi & Semangat Belajar";
+        } else if (hour >= 11 && hour < 15) {
+            greeting = "Selamat Siang & Semangat Belajar";
+        } else if (hour >= 15 && hour < 18) {
+            greeting = "Selamat Sore & Tetap Semangat";
+        } else {
+            greeting = "Selamat Malam & Selamat Belajar";
+        }
+        studentGreeting.textContent = greeting;
+    }
+</script>
+
+<%- include('../layouts/footer') %>

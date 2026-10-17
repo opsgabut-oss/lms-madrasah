@@ -1,0 +1,59 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../layouts/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
+        <div>
+            <h1 class="text-2xl font-black text-slate-800 tracking-tight">Tugas Mandiri & Praktik</h1>
+            <p class="text-xs sm:text-sm text-slate-500 font-medium">Daftar penugasan dari seluruh mata pelajaran yang Anda ikuti</p>
+        </div>
+
+        <div class="space-y-4">
+            <% if (assignments.length === 0) { %>
+                <div class="bg-white p-12 rounded-3xl border border-dashed border-slate-300 text-center text-slate-400">
+                    <i class="fas fa-check-double text-4xl mb-3 text-slate-300"></i>
+                    <h3 class="font-bold text-base text-slate-700">Tidak ada tugas aktif</h3>
+                    <p class="text-xs mt-1">Semua tugas telah diselesaikan atau guru belum memberikan tugas baru.</p>
+                </div>
+            <% } else { %>
+                <% assignments.forEach(function(asg) { %>
+                    <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2">
+                                <span class="px-3 py-1 rounded-full text-xs font-black bg-brand-50 text-brand-700 border border-brand-200">
+                                    <%= asg.class_grade %> • <%= asg.class_name %>
+                                </span>
+                                <span class="text-xs font-bold text-slate-400 flex items-center gap-1">
+                                    <i class="far fa-clock"></i> Batas: <%= asg.deadline %>
+                                </span>
+                            </div>
+                            <h2 class="text-lg font-black text-slate-800"><%= asg.title %></h2>
+                            <p class="text-xs text-slate-500 line-clamp-2 max-w-2xl"><%= asg.instructions %></p>
+                        </div>
+
+                        <div class="flex items-center gap-4 shrink-0">
+                            <% if (asg.submission_id) { %>
+                                <span class="px-3 py-1 rounded-full text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    <i class="fas fa-check-circle mr-1"></i> Terkumpul
+                                </span>
+                            <% } else { %>
+                                <span class="px-3 py-1 rounded-full text-xs font-black bg-amber-50 text-amber-700 border border-amber-200">
+                                    <i class="fas fa-exclamation-circle mr-1"></i> Belum Kirim
+                                </span>
+                            <% } %>
+
+                            <a href="/siswa/assignments/<%= asg.id %>" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow">
+                                <span><%= asg.submission_id ? 'Periksa / Edit' : 'Kerjakan' %></span>
+                                <i class="fas fa-arrow-right text-[10px]"></i>
+                            </a>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } %>
+        </div>
+    </main>
+</div>
+
+<%- include('../layouts/footer') %>

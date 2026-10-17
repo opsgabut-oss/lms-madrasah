@@ -1,0 +1,113 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../layouts/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
+        <div>
+            <a href="/siswa/assignments" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1.5 mb-2">
+                <i class="fas fa-arrow-left"></i> Kembali ke Daftar Tugas
+            </a>
+            <h1 class="text-2xl font-black text-slate-800 tracking-tight"><%= assignment.title %></h1>
+            <p class="text-xs sm:text-sm text-slate-500 font-medium">
+                <%= assignment.class_grade %> • <%= assignment.class_name %>
+            </p>
+        </div>
+
+        <% if (message) { %>
+            <div class="p-4 rounded-xl text-sm font-bold flex items-center gap-3 <%= message.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200' %>">
+                <i class="fas <%= message.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' %> text-lg"></i>
+                <span><%= message.text %></span>
+            </div>
+        <% } %>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left: Assignment Instructions -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <span class="text-xs font-bold text-slate-400">Petunjuk Tugas</span>
+                        <span class="text-xs font-bold text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+                            <i class="far fa-clock mr-1"></i> Batas: <%= assignment.deadline %>
+                        </span>
+                    </div>
+
+                    <div class="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+                        <%= assignment.instructions %>
+                    </div>
+
+                    <% if (assignment.attachment_path) { %>
+                        <div class="pt-4 border-t border-slate-100">
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Berkas Lampiran dari Guru:</div>
+                            <a href="<%= assignment.attachment_path %>" target="_blank" download class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-800 transition-colors">
+                                <i class="fas fa-file-download text-brand-600"></i>
+                                <span><%= assignment.attachment_name || 'Unduh Lampiran Soal' %></span>
+                            </a>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Teacher Feedback if graded -->
+                <% if (submission && submission.score !== null) { %>
+                    <div class="bg-gradient-to-br from-brand-50 to-emerald-100/60 rounded-3xl border border-brand-200 p-6 sm:p-8 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-black uppercase tracking-wider text-brand-800">
+                                <i class="fas fa-award mr-1"></i> Hasil Penilaian Guru
+                            </span>
+                            <span class="text-2xl font-black text-brand-900"><%= submission.score %> / 100</span>
+                        </div>
+                        <div class="text-xs text-slate-700 leading-relaxed">
+                            <strong>Catatan Evaluasi:</strong> <%= submission.feedback || 'Tugas telah dinilai dengan baik.' %>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+
+            <!-- Right: Submission Form -->
+            <div class="space-y-6">
+                <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm space-y-5">
+                    <div class="pb-3 border-b border-slate-100">
+                        <h3 class="text-base font-black text-slate-800">Pengumpulan Tugas Anda</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Unggah berkas tugas atau ketik langsung</p>
+                    </div>
+
+                    <form action="/siswa/assignments/<%= assignment.id %>/submit" method="POST" enctype="multipart/form-data" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Teks Jawaban / Catatan</label>
+                            <textarea name="submission_text" rows="4" placeholder="Ketik jawaban tugas atau catatan untuk guru..." class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-medium text-slate-800"><%= submission ? submission.submission_text : '' %></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1.5">Unggah File Tugas</label>
+                            <input type="file" name="submission_file" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3.5 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                        </div>
+
+                        <% if (submission && submission.file_path) { %>
+                            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-center justify-between">
+                                <span class="truncate max-w-[150px] font-bold"><%= submission.file_name || 'Berkas Terunggah' %></span>
+                                <a href="<%= submission.file_path %>" target="_blank" download class="text-brand-600 font-bold hover:underline">
+                                    Unduh
+                                </a>
+                            </div>
+                        <% } %>
+
+                        <button type="submit" class="w-full py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-xs shadow-md transition-all">
+                            <i class="fas fa-paper-plane mr-1.5"></i> <%= submission ? 'Perbarui Pengumpulan' : 'Serahkan Tugas' %>
+                        </button>
+                    </form>
+
+                    <% if (submission) { %>
+                        <div class="pt-3 border-t border-slate-100 text-center">
+                            <span class="text-[11px] font-bold text-slate-400">
+                                Diserahkan: <%= submission.submitted_at %>
+                            </span>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<%- include('../layouts/footer') %>

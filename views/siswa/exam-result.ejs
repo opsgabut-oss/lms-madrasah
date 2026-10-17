@@ -1,0 +1,79 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../layouts/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
+        <div>
+            <a href="/siswa/exams" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1.5 mb-2">
+                <i class="fas fa-arrow-left"></i> Kembali ke Daftar Ujian
+            </a>
+            <h1 class="text-2xl font-black text-slate-800 tracking-tight">Hasil Ujian Online (CBT)</h1>
+            <p class="text-xs sm:text-sm text-slate-500 font-medium">
+                <%= exam.class_name %> &mdash; <strong class="text-slate-800"><%= exam.title %></strong>
+            </p>
+        </div>
+
+        <!-- Score Banner -->
+        <div class="bg-gradient-to-r from-slate-900 via-brand-950 to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+            <div class="space-y-3 z-10 text-center md:text-left">
+                <span class="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-brand-500/20 text-brand-300 border border-brand-500/30">
+                    Status: Selesai Dikerjakan
+                </span>
+                <h2 class="text-xl sm:text-2xl font-black">Evaluasi Mandiri Tersimpan</h2>
+                <p class="text-slate-300 text-xs sm:text-sm max-w-lg">
+                    Hasil pengerjaan ujian Anda telah dianalisis oleh sistem secara otomatis. Nilai ini masuk ke dalam rekapitulasi nilai rapor akhir Anda.
+                </p>
+                <div class="text-[11px] text-slate-400 font-mono">
+                    Waktu Selesai: <%= session.end_time || session.start_time %> • Catatan Pindah Tab: <%= session.tab_switch_count || 0 %>x
+                </div>
+            </div>
+
+            <div class="z-10 bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-3xl text-center min-w-[160px] shadow-2xl">
+                <div class="text-xs font-bold text-brand-300 uppercase tracking-widest mb-1">Skor Akhir</div>
+                <div class="text-5xl font-black text-white"><%= session.total_score %></div>
+                <div class="text-[11px] text-slate-400 mt-1 font-bold">Skala 100</div>
+            </div>
+        </div>
+
+        <!-- Question Review Cards -->
+        <div class="space-y-4">
+            <h3 class="text-base font-black text-slate-800">Tinjauan Butir Soal & Kunci Jawaban</h3>
+
+            <% questions.forEach(function(q, idx) { %>
+                <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <span class="text-xs font-black text-slate-400">Soal #<%= idx + 1 %></span>
+                        <% if (q.question_type === 'pg') { %>
+                            <% const isCorrect = studentAnswers[q.id] && studentAnswers[q.id].toUpperCase() === q.correct_answer.toUpperCase(); %>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-black <%= isCorrect ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200' %>">
+                                <i class="fas <%= isCorrect ? 'fa-check' : 'fa-times' %> mr-1"></i>
+                                <%= isCorrect ? 'Jawaban Benar' : 'Jawaban Kurang Tepat' %>
+                            </span>
+                        <% } else { %>
+                            <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                Penilaian Manual Guru
+                            </span>
+                        <% } %>
+                    </div>
+
+                    <p class="text-sm font-bold text-slate-800"><%= q.question_text %></p>
+
+                    <% if (q.question_type === 'pg') { %>
+                        <div class="text-xs space-y-1 pt-1 text-slate-600">
+                            <div>Jawaban Anda: <strong class="text-slate-800"><%= studentAnswers[q.id] || 'Tidak dijawab' %></strong></div>
+                            <div>Kunci Jawaban Sistem: <strong class="text-emerald-700"><%= q.correct_answer %></strong></div>
+                        </div>
+                    <% } else { %>
+                        <div class="text-xs bg-slate-50 p-3 rounded-xl border border-slate-100 text-slate-700">
+                            <strong>Jawaban Anda:</strong> <%= studentAnswers[q.id] || 'Tidak ada jawaban tertulis.' %>
+                        </div>
+                    <% } %>
+                </div>
+            <% }); %>
+        </div>
+    </main>
+</div>
+
+<%- include('../layouts/footer') %>

@@ -1,0 +1,90 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../layouts/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <a href="/guru/attendances" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1.5 mb-2">
+                    <i class="fas fa-arrow-left"></i> Kembali ke Daftar Presensi
+                </a>
+                <h1 class="text-2xl font-black text-slate-800 tracking-tight">Presensi Pertemuan</h1>
+                <p class="text-xs sm:text-sm text-slate-500 font-medium">
+                    <%= attendance.class_grade %> • <%= attendance.class_name %> &mdash; <strong class="text-slate-800"><%= attendance.title %></strong>
+                </p>
+            </div>
+            <div class="bg-white px-4 py-2 rounded-2xl border border-slate-200 text-xs font-bold text-slate-600">
+                <i class="far fa-calendar-alt text-brand-600 mr-1.5"></i> Tanggal: <%= attendance.date %> (<%= attendance.start_time %> - <%= attendance.end_time %> WIB)
+            </div>
+        </div>
+
+        <% if (message) { %>
+            <div class="p-4 rounded-xl text-sm font-bold flex items-center gap-3 <%= message.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200' %>">
+                <i class="fas <%= message.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' %> text-lg"></i>
+                <span><%= message.text %></span>
+            </div>
+        <% } %>
+
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                <h2 class="text-base font-black text-slate-800">Daftar Kehadiran Siswa</h2>
+                <span class="text-xs font-bold text-slate-400">Total: <%= records.length %> Siswa</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[11px] tracking-wider border-b border-slate-200">
+                        <tr>
+                            <th class="py-4 px-6">Nama Siswa</th>
+                            <th class="py-4 px-6">NIS</th>
+                            <th class="py-4 px-6">Status Kehadiran</th>
+                            <th class="py-4 px-6">Catatan / Keterangan</th>
+                            <th class="py-4 px-6">Waktu Presensi</th>
+                            <th class="py-4 px-6 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <% records.forEach(function(rec) { %>
+                            <tr class="hover:bg-slate-50/80 transition-colors">
+                                <td class="py-4 px-6 font-bold text-slate-800 flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs">
+                                        <%= rec.student_name.charAt(0) %>
+                                    </div>
+                                    <span><%= rec.student_name %></span>
+                                </td>
+                                <td class="py-4 px-6 font-mono text-xs font-bold text-brand-700"><%= rec.identity_number %></td>
+                                
+                                <form action="/guru/attendances/<%= attendance.id %>/update" method="POST">
+                                    <input type="hidden" name="student_id" value="<%= rec.student_id %>">
+                                    <td class="py-4 px-6">
+                                        <select name="status" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-xs outline-none focus:ring-2 focus:ring-brand-500">
+                                            <option value="Hadir" <%= rec.status === 'Hadir' ? 'selected' : '' %>>🟢 Hadir</option>
+                                            <option value="Sakit" <%= rec.status === 'Sakit' ? 'selected' : '' %>>🟡 Sakit</option>
+                                            <option value="Izin" <%= rec.status === 'Izin' ? 'selected' : '' %>>🔵 Izin</option>
+                                            <option value="Alpa" <%= rec.status === 'Alpa' || !rec.status ? 'selected' : '' %>>🔴 Alpa</option>
+                                        </select>
+                                    </td>
+                                    <td class="py-4 px-6">
+                                        <input type="text" name="notes" value="<%= rec.notes || '' %>" placeholder="Keterangan..." class="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs w-full min-w-[150px]">
+                                    </td>
+                                    <td class="py-4 px-6 text-xs text-slate-400">
+                                        <%= rec.recorded_at || '-' %>
+                                    </td>
+                                    <td class="py-4 px-6 text-center">
+                                        <button type="submit" class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow">
+                                            Update
+                                        </button>
+                                    </td>
+                                </form>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<%- include('../layouts/footer') %>

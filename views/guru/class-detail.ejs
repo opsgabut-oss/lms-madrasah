@@ -1,0 +1,865 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../layouts/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
+        <!-- Class Hero Header -->
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8 relative overflow-hidden">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="px-3 py-1 rounded-full text-xs font-black bg-brand-50 text-brand-700 border border-brand-200">
+                            <%= currentClass.grade %>
+                        </span>
+                        <span class="text-xs font-bold text-slate-400">• <%= currentClass.subject %></span>
+                    </div>
+                    <h1 class="text-2xl sm:text-3xl font-black text-slate-800 tracking-tight">
+                        <%= currentClass.name %>
+                    </h1>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-2 max-w-2xl leading-relaxed">
+                        <%= currentClass.description || 'Tidak ada deskripsi ruang kelas.' %>
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap sm:flex-nowrap items-center gap-3">
+                    <div class="bg-slate-50 border border-slate-200 p-2.5 sm:p-3 rounded-2xl flex items-center gap-3 shadow-xs">
+                        <div>
+                            <div class="text-[10px] font-black uppercase tracking-wider text-slate-400">Kode Kelas Siswa</div>
+                            <div class="text-base sm:text-lg font-mono font-black text-slate-800"><%= currentClass.code %></div>
+                        </div>
+                        <button onclick="copyCode('<%= currentClass.code %>')" class="p-2 rounded-xl bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 transition-colors shadow-xs" title="Salin Kode Kelas">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="document.getElementById('editClassDetailModal').classList.remove('hidden')" class="px-3.5 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs" title="Edit Informasi Kelas">
+                            <i class="fas fa-pen-to-square text-emerald-700"></i>
+                            <span>Edit Kelas</span>
+                        </button>
+
+                        <form action="/guru/classes/<%= currentClass.id %>/delete" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kelas <%= currentClass.name %>?\n\nPERINGATAN: Seluruh data materi, tugas, ujian CBT, absensi, dan data siswa di kelas ini akan dihapus permanen!')" class="inline">
+                            <button type="submit" class="px-3.5 py-2.5 rounded-2xl bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs" title="Hapus Ruang Kelas Ini">
+                                <i class="fas fa-trash-can"></i>
+                                <span>Hapus Kelas</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Edit Info Kelas -->
+            <div id="editClassDetailModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+                <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg font-bold">
+                                <i class="fas fa-pen-to-square"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-black text-slate-800">Edit Ruang Kelas</h3>
+                                <p class="text-xs text-slate-400">Perbarui informasi nama, mata pelajaran, tingkat, atau kode kelas</p>
+                            </div>
+                        </div>
+                        <button onclick="document.getElementById('editClassDetailModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 text-lg">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <form action="/guru/classes/<%= currentClass.id %>/update" method="POST" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Nama Kelas Lengkap</label>
+                            <input type="text" name="name" value="<%= currentClass.name %>" required class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none text-sm font-semibold text-slate-800">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Mata Pelajaran</label>
+                                <input type="text" name="subject" value="<%= currentClass.subject %>" required class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none text-sm font-semibold text-slate-800">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Rombel / Tingkat</label>
+                                <input type="text" name="grade" value="<%= currentClass.grade %>" required class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none text-sm font-semibold text-slate-800">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Kode Kelas</label>
+                            <input type="text" name="code" value="<%= currentClass.code %>" required class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none text-sm font-mono font-bold text-slate-800 uppercase">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Deskripsi / Petunjuk Kelas</label>
+                            <textarea name="description" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none text-sm text-slate-800"><%= currentClass.description || '' %></textarea>
+                        </div>
+
+                        <div class="pt-4 flex items-center justify-end gap-3">
+                            <button type="button" onclick="document.getElementById('editClassDetailModal').classList.add('hidden')" class="px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-bold text-sm">
+                                Batal
+                            </button>
+                            <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-sm shadow-md transition-all">
+                                Simpan Perubahan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="mt-8 flex items-center gap-2 overflow-x-auto border-b border-slate-100 pb-2">
+                <a href="/guru/classes/<%= currentClass.id %>?tab=materials" class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all flex items-center gap-2 <%= tab === 'materials' ? 'bg-brand-500 text-slate-900 shadow-sm' : 'text-slate-600 hover:bg-slate-100' %>">
+                    <i class="fas fa-book-reader"></i> Materi (<%= materials.length %>)
+                </a>
+                <a href="/guru/classes/<%= currentClass.id %>?tab=assignments" class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all flex items-center gap-2 <%= tab === 'assignments' ? 'bg-brand-500 text-slate-900 shadow-sm' : 'text-slate-600 hover:bg-slate-100' %>">
+                    <i class="fas fa-tasks"></i> Tugas (<%= assignments.length %>)
+                </a>
+                <a href="/guru/classes/<%= currentClass.id %>?tab=exams" class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all flex items-center gap-2 <%= tab === 'exams' ? 'bg-brand-500 text-slate-900 shadow-sm' : 'text-slate-600 hover:bg-slate-100' %>">
+                    <i class="fas fa-laptop-code"></i> Ujian CBT (<%= exams.length %>)
+                </a>
+                <a href="/guru/classes/<%= currentClass.id %>?tab=students" class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all flex items-center gap-2 <%= tab === 'students' ? 'bg-brand-500 text-slate-900 shadow-sm' : 'text-slate-600 hover:bg-slate-100' %>">
+                    <i class="fas fa-users"></i> Siswa (<%= students.length %>)
+                </a>
+                <a href="/guru/classes/<%= currentClass.id %>?tab=attendances" class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all flex items-center gap-2 <%= tab === 'attendances' ? 'bg-brand-500 text-slate-900 shadow-sm' : 'text-slate-600 hover:bg-slate-100' %>">
+                    <i class="fas fa-calendar-check"></i> Absensi (<%= attendances.length %>)
+                </a>
+                <a href="/guru/classes/<%= currentClass.id %>?tab=forum" class="px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm whitespace-nowrap transition-all flex items-center gap-2 <%= tab === 'forum' ? 'bg-brand-500 text-slate-900 shadow-sm' : 'text-slate-600 hover:bg-slate-100' %>">
+                    <i class="fas fa-comments"></i> Forum Diskusi (<%= discussions.length %>)
+                </a>
+            </div>
+        </div>
+
+        <% if (message) { %>
+            <div class="p-4 rounded-xl text-sm font-bold flex items-center gap-3 <%= message.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200' %>">
+                <i class="fas <%= message.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' %> text-lg"></i>
+                <span><%= message.text %></span>
+            </div>
+        <% } %>
+
+        <!-- TAB 1: MATERI PEMBELAJARAN -->
+        <% if (tab === 'materials') { %>
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-black text-slate-800">Daftar Modul & Materi</h2>
+                        <p class="text-xs text-slate-500">Materi digital dapat berupa dokumen PDF, artikel ringkasan, maupun video interaktif</p>
+                    </div>
+                    <button onclick="document.getElementById('addMaterialModal').classList.remove('hidden')" class="px-4 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-xs shadow-md transition-all">
+                        <i class="fas fa-plus mr-1"></i> Tambah Materi Baru
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <% if (materials.length === 0) { %>
+                        <div class="bg-white p-10 rounded-3xl border border-dashed border-slate-300 text-center text-slate-400">
+                            <i class="fas fa-book-open text-3xl mb-2 text-slate-300"></i>
+                            <p class="font-bold text-sm text-slate-600">Belum ada materi pembelajaran</p>
+                            <p class="text-xs mt-1">Unggah bahan materi atau tautan video untuk dipelajari siswa.</p>
+                        </div>
+                    <% } else { %>
+                        <% materials.forEach(function(mat) { %>
+                            <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition-all space-y-4">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-sm shrink-0">
+                                            #<%= mat.meeting_number %>
+                                        </div>
+                                        <div>
+                                            <span class="text-[10px] font-black uppercase tracking-wider text-emerald-600">Pertemuan Ke-<%= mat.meeting_number %></span>
+                                            <h3 class="text-base font-black text-slate-800"><%= mat.title %></h3>
+                                            <div class="text-[11px] text-slate-400 mt-0.5"><i class="far fa-clock mr-1"></i> Diterbitkan <%= mat.created_at %></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2 shrink-0">
+                                        <button type="button" onclick="openEditMaterialModal(<%= mat.id %>)" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 transition-all hover:scale-105 shadow-xs" title="Edit Materi">
+                                            <i class="fas fa-edit text-brand-600"></i>
+                                            <span>Edit</span>
+                                        </button>
+                                        <form action="/guru/classes/<%= currentClass.id %>/materials/<%= mat.id %>/delete" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus materi Pertemuan Ke-<%= mat.meeting_number %>?')">
+                                            <button type="submit" class="px-3 py-1.5 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs flex items-center gap-1.5 transition-all hover:scale-105 shadow-xs" title="Hapus Materi">
+                                                <i class="fas fa-trash-alt"></i>
+                                                <span>Hapus</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                    <script type="application/json" id="material-json-<%= mat.id %>"><%- JSON.stringify(mat) %></script>
+                                </div>
+
+                                <% if (mat.content) { %>
+                                    <div class="text-sm text-slate-600 bg-slate-50 p-4 rounded-xl whitespace-pre-line leading-relaxed border border-slate-100">
+                                        <%= mat.content %>
+                                    </div>
+                                <% } %>
+
+                                <% if (mat.video_url) { %>
+                                    <% const isCanva = mat.video_url.includes('canva.com') || mat.video_url.includes('canva.link') || mat.video_url.includes('canva'); %>
+                                    <% if (isCanva) { %>
+                                        <!-- Canva Presentation Showcase Card -->
+                                        <div class="rounded-3xl p-5 sm:p-6 bg-gradient-to-r from-purple-950 via-slate-900 to-cyan-950 text-white shadow-lg border border-purple-900/40 space-y-4 max-w-2xl relative overflow-hidden">
+                                            <div class="absolute -right-8 -bottom-8 w-48 h-48 bg-cyan-400/10 rounded-full blur-2xl pointer-events-none"></div>
+                                            
+                                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-2xl text-cyan-300 shrink-0 shadow-inner">
+                                                        <i class="fas fa-desktop"></i>
+                                                    </div>
+                                                    <div>
+                                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-cyan-400 text-slate-950">
+                                                            Canva Presentation
+                                                        </span>
+                                                        <h4 class="text-sm sm:text-base font-black text-white mt-1">Slide Pembelajaran Canva</h4>
+                                                        <p class="text-xs text-slate-300">Presentasi interaktif dengan animasi & transisi</p>
+                                                    </div>
+                                                </div>
+
+                                                <a href="<%= mat.video_url.replace('?embed', '').replace('&embed', '') %>" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-teal-400 hover:from-cyan-300 hover:to-teal-300 text-slate-950 font-black text-xs shadow-lg shadow-cyan-500/20 transition-all hover:scale-105 shrink-0">
+                                                    <i class="fas fa-external-link-alt"></i>
+                                                    <span>Buka Slide Canva</span>
+                                                </a>
+                                            </div>
+
+                                            <div class="rounded-2xl overflow-hidden aspect-video w-full border border-white/10 bg-slate-950 shadow-inner relative">
+                                                <iframe class="w-full h-full" src="<%= mat.video_url %>" title="Slide Canva" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                                            </div>
+
+                                            <div class="p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-slate-300 flex items-center gap-2">
+                                                <i class="fas fa-info-circle text-cyan-400 text-sm shrink-0"></i>
+                                                <span>Jika tampilan slide di atas menampilkan <em>"refused to connect"</em>, silakan klik tombol <strong>"Buka Slide Canva"</strong> di atas untuk membuka presentasi langsung di tab baru.</span>
+                                            </div>
+                                        </div>
+                                    <% } else { %>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center gap-2">
+                                                <% if (mat.video_url.includes('youtube.com')) { %>
+                                                    <span class="px-2.5 py-0.5 rounded-lg text-[10px] font-black bg-red-50 text-red-700 border border-red-200">
+                                                        <i class="fab fa-youtube mr-1"></i> Video Pembelajaran YouTube
+                                                    </span>
+                                                <% } else { %>
+                                                    <span class="px-2.5 py-0.5 rounded-lg text-[10px] font-black bg-slate-100 text-slate-700 border border-slate-200">
+                                                        <i class="fas fa-play-circle mr-1"></i> Media Pembelajaran
+                                                    </span>
+                                                <% } %>
+                                            </div>
+                                            <div class="rounded-2xl overflow-hidden aspect-video max-w-2xl border border-slate-200 shadow-sm bg-black">
+                                                <iframe class="w-full h-full" src="<%= mat.video_url %>" title="Media Pembelajaran" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                                            </div>
+                                        </div>
+                                    <% } %>
+                                <% } %>
+
+                                <% if (mat.attachment_path) { %>
+                                    <%
+                                        let fileExt = (mat.attachment_name || '').split('.').pop().toLowerCase();
+                                        let fileIcon = 'fa-file-alt text-slate-600';
+                                        let fileLabel = 'Dokumen Lampiran';
+                                        if (['ppt', 'pptx'].includes(fileExt)) {
+                                            fileIcon = 'fa-file-powerpoint text-amber-600';
+                                            fileLabel = 'Slide Presentasi PowerPoint (PPT)';
+                                        } else if (fileExt === 'pdf') {
+                                            fileIcon = 'fa-file-pdf text-red-500';
+                                            fileLabel = 'Dokumen PDF';
+                                        } else if (['doc', 'docx'].includes(fileExt)) {
+                                            fileIcon = 'fa-file-word text-blue-600';
+                                            fileLabel = 'Dokumen Word';
+                                        } else if (['xls', 'xlsx'].includes(fileExt)) {
+                                            fileIcon = 'fa-file-excel text-emerald-600';
+                                            fileLabel = 'Spreadsheet Excel';
+                                        }
+                                    %>
+                                    <div class="inline-flex items-center gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-800 shadow-sm">
+                                        <i class="fas <%= fileIcon %> text-xl"></i>
+                                        <div class="text-left">
+                                            <div class="font-black text-slate-800"><%= mat.attachment_name || 'Berkas Lampiran Materi' %></div>
+                                            <div class="text-[10px] text-slate-400 font-semibold uppercase"><%= fileLabel %></div>
+                                        </div>
+                                        <a href="<%= mat.attachment_path %>" target="_blank" download class="ml-3 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-brand-700 hover:bg-brand-50 font-black text-xs transition-colors flex items-center gap-1.5 shadow-xs">
+                                            <i class="fas fa-download"></i> Unduh File
+                                        </a>
+                                    </div>
+                                <% } %>
+                            </div>
+                        <% }); %>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Modal Add Material -->
+            <div id="addMaterialModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+                <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                        <h3 class="text-lg font-black text-slate-800">Tambah Materi Pelajaran</h3>
+                        <button onclick="document.getElementById('addMaterialModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 text-lg">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <form action="/guru/classes/<%= currentClass.id %>/materials/create" method="POST" enctype="multipart/form-data" class="space-y-4">
+                        <div class="grid grid-cols-4 gap-3">
+                            <div class="col-span-1">
+                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Pertemuan</label>
+                                <input type="number" name="meeting_number" value="<%= materials.length + 1 %>" required class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-bold text-center">
+                            </div>
+                            <div class="col-span-3">
+                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Judul Materi</label>
+                                <input type="text" name="title" required placeholder="Contoh: Pengenalan Rukun Iman & Islam" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-semibold">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Uraian / Ringkasan Materi</label>
+                            <textarea name="content" rows="4" placeholder="Tulis atau paste rangkuman materi dari buku / Word / catatan di sini..." class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm text-slate-800"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Tautan Slide Canva / Google Slides / Video YouTube (Opsional)</label>
+                            <input type="url" name="video_url" placeholder="https://www.canva.com/design/... atau https://www.youtube.com/watch?v=..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-mono">
+                            <p class="text-[11px] text-slate-400 mt-1">Mendukung link share Canva Presentation, Google Slides, maupun YouTube.</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Unggah File PPT / PDF / Word (Opsional)</label>
+                            <input type="file" name="attachment" accept=".pptx,.ppt,.pdf,.docx,.doc,.xlsx,.xls,.zip,image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                            <p class="text-[11px] text-slate-400 mt-1">Maksimal 25MB. Bisa berkas PPT hasil ekspor Canva, PowerPoint asli (.pptx), atau PDF.</p>
+                        </div>
+
+                        <div class="pt-4 flex items-center justify-end gap-3">
+                            <button type="button" onclick="document.getElementById('addMaterialModal').classList.add('hidden')" class="px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-bold text-sm">
+                                Batal
+                            </button>
+                            <button type="submit" class="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-sm shadow-md transition-all">
+                                Publikasikan Materi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modal Edit Material -->
+            <div id="editMaterialModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+                <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg font-bold">
+                                <i class="fas fa-edit"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-black text-slate-800">Edit Materi Pelajaran</h3>
+                                <p class="text-xs text-slate-400">Perbarui judul, uraian, link, atau berkas lampiran</p>
+                            </div>
+                        </div>
+                        <button onclick="document.getElementById('editMaterialModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 text-lg">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <form id="editMaterialForm" action="" method="POST" enctype="multipart/form-data" class="space-y-4">
+                        <div class="grid grid-cols-4 gap-3">
+                            <div class="col-span-1">
+                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Pertemuan</label>
+                                <input type="number" id="editMeetingNumber" name="meeting_number" required class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-bold text-center">
+                            </div>
+                            <div class="col-span-3">
+                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Judul Materi</label>
+                                <input type="text" id="editTitle" name="title" required placeholder="Judul materi pembelajaran" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-semibold">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Uraian / Ringkasan Materi</label>
+                            <textarea id="editContent" name="content" rows="4" placeholder="Uraian atau rangkuman materi..." class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm text-slate-800"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Tautan Slide Canva / Google Slides / Video YouTube</label>
+                            <input type="url" id="editVideoUrl" name="video_url" placeholder="https://www.canva.com/design/... atau https://www.youtube.com/..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-mono">
+                            <p class="text-[11px] text-slate-400 mt-1">Bisa link share Canva, Google Slides, maupun YouTube.</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Ganti Berkas Lampiran (Opsional)</label>
+                            <div id="currentAttachmentNotice" class="text-xs text-slate-600 mb-2 p-3 rounded-xl bg-slate-50 border border-slate-200 hidden flex items-center justify-between">
+                                <div class="flex items-center gap-2 overflow-hidden">
+                                    <i class="fas fa-paperclip text-brand-600 shrink-0"></i>
+                                    <span class="truncate">File saat ini: <strong id="currentAttachmentName" class="text-slate-800 font-bold"></strong></span>
+                                </div>
+                            </div>
+                            <input type="file" name="attachment" accept=".pptx,.ppt,.pdf,.docx,.doc,.xlsx,.xls,.zip,image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                            <p class="text-[11px] text-slate-400 mt-1">Kosongkan jika tidak ingin mengganti berkas yang sudah ada.</p>
+                        </div>
+
+                        <div class="pt-4 flex items-center justify-end gap-3">
+                            <button type="button" onclick="document.getElementById('editMaterialModal').classList.add('hidden')" class="px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-bold text-sm">
+                                Batal
+                            </button>
+                            <button type="submit" class="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-sm shadow-md transition-all">
+                                Simpan Perubahan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <script>
+                function openEditMaterialModal(materialId) {
+                    try {
+                        const scriptEl = document.getElementById('material-json-' + materialId);
+                        if (!scriptEl) {
+                            console.error('Material data not found for ID:', materialId);
+                            return;
+                        }
+                        const mat = JSON.parse(scriptEl.textContent);
+                        document.getElementById('editMaterialForm').action = '/guru/classes/<%= currentClass.id %>/materials/' + mat.id + '/update';
+                        document.getElementById('editMeetingNumber').value = mat.meeting_number || 1;
+                        document.getElementById('editTitle').value = mat.title || '';
+                        document.getElementById('editContent').value = mat.content || '';
+                        document.getElementById('editVideoUrl').value = mat.video_url || '';
+                        
+                        const notice = document.getElementById('currentAttachmentNotice');
+                        const nameEl = document.getElementById('currentAttachmentName');
+                        if (mat.attachment_name) {
+                            nameEl.textContent = mat.attachment_name;
+                            notice.classList.remove('hidden');
+                        } else {
+                            notice.classList.add('hidden');
+                        }
+
+                        document.getElementById('editMaterialModal').classList.remove('hidden');
+                    } catch (err) {
+                        console.error('Gagal membuka modal edit materi:', err);
+                    }
+                }
+            </script>
+        <% } %>
+
+        <!-- TAB 2: TUGAS SISWA -->
+        <% if (tab === 'assignments') { %>
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-black text-slate-800">Kelola Tugas & Proyek</h2>
+                        <p class="text-xs text-slate-500">Berikan instruksi penugasan beserta batas waktu pengumpulan</p>
+                    </div>
+                    <button onclick="document.getElementById('addAssignmentModal').classList.remove('hidden')" class="px-4 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-xs shadow-md transition-all">
+                        <i class="fas fa-plus mr-1"></i> Buat Tugas Baru
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <% if (assignments.length === 0) { %>
+                        <div class="bg-white p-10 rounded-3xl border border-dashed border-slate-300 text-center text-slate-400">
+                            <i class="fas fa-clipboard-check text-3xl mb-2 text-slate-300"></i>
+                            <p class="font-bold text-sm text-slate-600">Belum ada tugas untuk kelas ini</p>
+                            <p class="text-xs mt-1">Buat tugas baru untuk menguji pemahaman siswa.</p>
+                        </div>
+                    <% } else { %>
+                        <% assignments.forEach(function(asg) { %>
+                            <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="px-2.5 py-0.5 rounded-lg text-[11px] font-black bg-amber-50 text-amber-700 border border-amber-200">
+                                            Tugas Mandiri
+                                        </span>
+                                        <span class="text-xs font-bold text-slate-400 flex items-center gap-1">
+                                            <i class="far fa-calendar-alt"></i> Batas: <%= asg.deadline %>
+                                        </span>
+                                    </div>
+                                    <h3 class="text-base font-black text-slate-800"><%= asg.title %></h3>
+                                    <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed"><%= asg.instructions %></p>
+                                </div>
+
+                                <div class="flex items-center gap-3 shrink-0">
+                                    <div class="text-right">
+                                        <div class="text-sm font-black text-slate-800"><%= asg.submission_count %> / <%= students.length %></div>
+                                        <div class="text-[10px] font-bold text-slate-400 uppercase">Terkumpul</div>
+                                    </div>
+                                    <a href="/guru/assignments/<%= asg.id %>/review" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow">
+                                        <span>Periksa & Nilai</span>
+                                        <i class="fas fa-chevron-right text-[10px]"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Modal Add Assignment -->
+            <div id="addAssignmentModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+                <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                        <h3 class="text-lg font-black text-slate-800">Buat Tugas Baru</h3>
+                        <button onclick="document.getElementById('addAssignmentModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 text-lg">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <form action="/guru/classes/<%= currentClass.id %>/assignments/create" method="POST" enctype="multipart/form-data" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Judul Tugas</label>
+                            <input type="text" name="title" required placeholder="Contoh: Tugas Praktik 1 - Desain ERD" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-semibold">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Petunjuk / Soal Tugas</label>
+                            <textarea name="instructions" rows="4" required placeholder="Jelaskan instruksi pengerjaan dan format pengumpulan..." class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm text-slate-800"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Batas Waktu Pengumpulan (Deadline)</label>
+                            <input type="datetime-local" name="deadline" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-bold text-slate-700">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Lampiran File Soal (Opsional)</label>
+                            <input type="file" name="attachment" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100">
+                        </div>
+
+                        <div class="pt-4 flex items-center justify-end gap-3">
+                            <button type="button" onclick="document.getElementById('addAssignmentModal').classList.add('hidden')" class="px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-bold text-sm">
+                                Batal
+                            </button>
+                            <button type="submit" class="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-sm shadow-md transition-all">
+                                Terbitkan Tugas
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        <% } %>
+
+        <!-- TAB 3: UJIAN ONLINE CBT -->
+        <% if (tab === 'exams') { %>
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-black text-slate-800">Ujian Online (CBT) Super Aman</h2>
+                        <p class="text-xs text-slate-500">Dilengkapi fitur anti-curang: acak soal & opsi, mode fullscreen, dan deteksi pindah tab</p>
+                    </div>
+                    <a href="/guru/exams/create" class="px-4 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-xs shadow-md transition-all">
+                        <i class="fas fa-plus mr-1"></i> Buat Ujian Baru
+                    </a>
+                </div>
+
+                <div class="space-y-4">
+                    <% if (exams.length === 0) { %>
+                        <div class="bg-white p-10 rounded-3xl border border-dashed border-slate-300 text-center text-slate-400">
+                            <i class="fas fa-laptop-code text-3xl mb-2 text-slate-300"></i>
+                            <p class="font-bold text-sm text-slate-600">Belum ada ujian CBT di kelas ini</p>
+                            <p class="text-xs mt-1">Buat ujian online dengan proteksi anti-kecurangan untuk mengevaluasi siswa.</p>
+                        </div>
+                    <% } else { %>
+                        <% exams.forEach(function(ex) { %>
+                            <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div class="space-y-2">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="px-2.5 py-0.5 rounded-lg text-[10px] font-black bg-purple-50 text-purple-700 border border-purple-200">
+                                            <i class="fas fa-shield-alt mr-1"></i> Anti-Cheat Active
+                                        </span>
+                                        <span class="px-2.5 py-0.5 rounded-lg text-[10px] font-black bg-slate-100 text-slate-600">
+                                            Durasi: <%= ex.duration_minutes %> Menit
+                                        </span>
+                                        <span class="px-2.5 py-0.5 rounded-lg text-[10px] font-black bg-emerald-50 text-emerald-700">
+                                            <%= ex.question_count %> Butir Soal
+                                        </span>
+                                    </div>
+                                    <h3 class="text-base font-black text-slate-800"><%= ex.title %></h3>
+                                    <p class="text-xs text-slate-500 line-clamp-1"><%= ex.description %></p>
+                                </div>
+
+                                <div class="flex items-center gap-3 shrink-0">
+                                    <a href="/guru/exams/<%= ex.id %>/questions" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center gap-1.5 transition-all">
+                                        <i class="fas fa-list-ol"></i> Kelola Soal
+                                    </a>
+                                    <a href="/guru/exams/<%= ex.id %>/results" class="px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-xs flex items-center gap-1.5 transition-all shadow-md shadow-brand-500/20">
+                                        <i class="fas fa-chart-bar"></i> Rekap Nilai (<%= ex.student_attempt_count %>)
+                                    </a>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } %>
+                </div>
+            </div>
+        <% } %>
+
+        <!-- TAB 4: SISWA & ANGGOTA KELAS -->
+        <% if (tab === 'students') { %>
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-black text-slate-800">Daftar Anggota Kelas</h2>
+                        <p class="text-xs text-slate-500">Siswa dapat bergabung mandiri dengan kode <strong class="font-mono text-slate-800"><%= currentClass.code %></strong> atau ditambahkan langsung oleh Guru</p>
+                    </div>
+                    <button onclick="document.getElementById('addStudentModal').classList.remove('hidden')" class="px-4 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-xs shadow-md transition-all">
+                        <i class="fas fa-user-plus mr-1"></i> Tambah Siswa
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[11px] tracking-wider">
+                                <tr>
+                                    <th class="py-4 px-6">No</th>
+                                    <th class="py-4 px-6">Nama Siswa</th>
+                                    <th class="py-4 px-6">NIS / Identitas</th>
+                                    <th class="py-4 px-6">Email</th>
+                                    <th class="py-4 px-6">Waktu Bergabung</th>
+                                    <th class="py-4 px-6 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                <% if (students.length === 0) { %>
+                                    <tr>
+                                        <td colspan="6" class="text-center py-8 text-xs text-slate-400">
+                                            Belum ada siswa di kelas ini.
+                                        </td>
+                                    </tr>
+                                <% } else { %>
+                                    <% students.forEach(function(st, idx) { %>
+                                        <tr class="hover:bg-slate-50/80 transition-colors">
+                                            <td class="py-4 px-6 font-bold text-slate-400"><%= idx + 1 %></td>
+                                            <td class="py-4 px-6 font-bold text-slate-800 flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs">
+                                                    <%= st.name.charAt(0) %>
+                                                </div>
+                                                <span><%= st.name %></span>
+                                            </td>
+                                            <td class="py-4 px-6 font-mono text-xs font-bold text-brand-700"><%= st.identity_number %></td>
+                                            <td class="py-4 px-6 text-xs text-slate-500"><%= st.email || '-' %></td>
+                                            <td class="py-4 px-6 text-xs text-slate-400"><%= st.joined_at %></td>
+                                            <td class="py-4 px-6 text-center">
+                                                <form action="/guru/classes/<%= currentClass.id %>/students/<%= st.id %>/remove" method="POST" onsubmit="return confirm('Keluarkan siswa ini dari kelas?')">
+                                                    <button type="submit" class="text-slate-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-red-50 transition-colors" title="Keluarkan Siswa">
+                                                        <i class="fas fa-user-times"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Add Student -->
+            <div id="addStudentModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+                <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                        <h3 class="text-lg font-black text-slate-800">Tambah Akun Siswa</h3>
+                        <button onclick="document.getElementById('addStudentModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 text-lg">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <form action="/guru/classes/<%= currentClass.id %>/students/add" method="POST" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Nama Lengkap Siswa</label>
+                            <input type="text" name="name" required placeholder="Contoh: Muhammad Rizky" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-semibold">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Nomor Induk Siswa (NIS/NISN)</label>
+                            <input type="text" name="identity_number" required placeholder="Contoh: 20261005" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-mono font-bold text-slate-800">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Email Siswa (Opsional)</label>
+                            <input type="email" name="email" placeholder="siswa@sekolah.com" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-semibold">
+                        </div>
+
+                        <div class="p-3 bg-brand-50 border border-brand-200 rounded-xl text-[11px] text-brand-800 font-semibold leading-relaxed">
+                            <i class="fas fa-info-circle mr-1"></i> Jika siswa belum memiliki akun, sistem akan otomatis membuatkannya dengan kata sandi bawaan <code>password123</code>.
+                        </div>
+
+                        <div class="pt-4 flex items-center justify-end gap-3">
+                            <button type="button" onclick="document.getElementById('addStudentModal').classList.add('hidden')" class="px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-bold text-sm">
+                                Batal
+                            </button>
+                            <button type="submit" class="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-sm shadow-md transition-all">
+                                Daftarkan ke Kelas
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        <% } %>
+
+        <!-- TAB 5: ABSENSI KELAS -->
+        <% if (tab === 'attendances') { %>
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-lg font-black text-slate-800">Sesi Presensi / Absensi Kelas</h2>
+                        <p class="text-xs text-slate-500">Buka absensi pertemuan agar siswa dapat melakukan presensi mandiri atau diinput manual</p>
+                    </div>
+                    <button onclick="document.getElementById('addAttendanceModal').classList.remove('hidden')" class="px-4 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-xs shadow-md transition-all">
+                        <i class="fas fa-calendar-plus mr-1"></i> Buka Sesi Absensi
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <% if (attendances.length === 0) { %>
+                        <div class="col-span-full bg-white p-10 rounded-3xl border border-dashed border-slate-300 text-center text-slate-400">
+                            <i class="fas fa-calendar-check text-3xl mb-2 text-slate-300"></i>
+                            <p class="font-bold text-sm text-slate-600">Belum ada sesi absensi</p>
+                            <p class="text-xs mt-1">Buat sesi absensi untuk mencatat kehadiran siswa pada pertemuan KBM.</p>
+                        </div>
+                    <% } else { %>
+                        <% attendances.forEach(function(att) { %>
+                            <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="px-2.5 py-0.5 rounded-lg text-[10px] font-black bg-brand-50 text-brand-700">
+                                            <%= att.date %>
+                                        </span>
+                                        <span class="text-xs font-bold text-slate-500 font-mono">
+                                            <%= att.start_time %> - <%= att.end_time %> WIB
+                                        </span>
+                                    </div>
+                                    <h3 class="text-base font-black text-slate-800"><%= att.title %></h3>
+                                </div>
+                                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                                    <div class="text-xs font-bold text-emerald-600">
+                                        <i class="fas fa-user-check mr-1"></i> <%= att.present_count %> / <%= students.length %> Hadir
+                                    </div>
+                                    <a href="/guru/attendances/<%= att.id %>" class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1 transition-all">
+                                        <span>Kelola Presensi</span>
+                                        <i class="fas fa-arrow-right text-[10px]"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Modal Add Attendance -->
+            <div id="addAttendanceModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+                <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                        <h3 class="text-lg font-black text-slate-800">Buka Sesi Presensi Baru</h3>
+                        <button onclick="document.getElementById('addAttendanceModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 text-lg">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+
+                    <form action="/guru/classes/<%= currentClass.id %>/attendances/create" method="POST" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Judul / Pertemuan</label>
+                            <input type="text" name="title" required placeholder="Contoh: Presensi Pertemuan 2 - Basis Data" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-semibold">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Tanggal Pertemuan</label>
+                            <input type="date" name="date" required value="<%= new Date().toISOString().split('T')[0] %>" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-bold text-slate-700">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Jam Mulai</label>
+                                <input type="time" name="start_time" required value="07:00" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-bold text-slate-700">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Jam Berakhir</label>
+                                <input type="time" name="end_time" required value="23:59" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-bold text-slate-700">
+                            </div>
+                        </div>
+
+                        <div class="pt-4 flex items-center justify-end gap-3">
+                            <button type="button" onclick="document.getElementById('addAttendanceModal').classList.add('hidden')" class="px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-bold text-sm">
+                                Batal
+                            </button>
+                            <button type="submit" class="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-sm shadow-md transition-all">
+                                Buka Sesi Presensi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        <% } %>
+
+        <!-- TAB 6: FORUM DISKUSI -->
+        <% if (tab === 'forum') { %>
+            <div class="space-y-6">
+                <!-- Create Thread -->
+                <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
+                    <h3 class="text-base font-black text-slate-800 mb-3 flex items-center gap-2">
+                        <i class="fas fa-edit text-brand-500"></i> Buat Topik Diskusi Baru
+                    </h3>
+                    <form action="/guru/classes/<%= currentClass.id %>/forum/create" method="POST" class="space-y-3">
+                        <input type="text" name="title" required placeholder="Judul topik diskusi atau pengumuman..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-semibold">
+                        <textarea name="content" rows="3" required placeholder="Tuliskan materi diskusi atau instruksi tanya jawab..." class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm text-slate-800"></textarea>
+                        <div class="flex justify-end">
+                            <button type="submit" class="px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-xs shadow-md transition-all">
+                                <i class="fas fa-paper-plane mr-1"></i> Terbitkan Diskusi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Discussion Threads -->
+                <div class="space-y-4">
+                    <% if (discussions.length === 0) { %>
+                        <div class="bg-white p-10 rounded-3xl border border-dashed border-slate-300 text-center text-slate-400">
+                            <i class="fas fa-comments text-3xl mb-2 text-slate-300"></i>
+                            <p class="font-bold text-sm text-slate-600">Belum ada diskusi di kelas ini</p>
+                            <p class="text-xs mt-1">Mulai diskusi pertama untuk memicu interaksi aktif siswa.</p>
+                        </div>
+                    <% } else { %>
+                        <% discussions.forEach(function(disc) { %>
+                            <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm space-y-4">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl <%= disc.author_role === 'guru' ? 'bg-emerald-600' : 'bg-slate-800' %> text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                                            <%= disc.author_name.charAt(0) %>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <h4 class="font-extrabold text-sm text-slate-800"><%= disc.author_name %></h4>
+                                                <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase <%= disc.author_role === 'guru' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700' %>">
+                                                    <%= disc.author_role %>
+                                                </span>
+                                            </div>
+                                            <div class="text-[11px] text-slate-400"><%= disc.created_at %></div>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs font-bold text-slate-400 flex items-center gap-1">
+                                        <i class="fas fa-comment-dots"></i> <%= disc.reply_count %> Balasan
+                                    </span>
+                                </div>
+
+                                <div>
+                                    <h3 class="text-base font-black text-slate-800 mb-1"><%= disc.title %></h3>
+                                    <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line"><%= disc.content %></p>
+                                </div>
+
+                                <!-- Replies Form -->
+                                <form action="/guru/forum/<%= disc.id %>/reply" method="POST" class="pt-3 border-t border-slate-100 flex gap-2">
+                                    <input type="hidden" name="class_id" value="<%= currentClass.id %>">
+                                    <input type="text" name="reply" required placeholder="Tulis tanggapan / balasan..." class="flex-1 px-4 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-medium">
+                                    <button type="submit" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs">
+                                        Kirim
+                                    </button>
+                                </form>
+                            </div>
+                        <% }); %>
+                    <% } %>
+                </div>
+            </div>
+        <% } %>
+
+    </main>
+</div>
+
+<script>
+    function copyCode(code) {
+        navigator.clipboard.writeText(code).then(() => {
+            alert('Kode kelas ' + code + ' telah disalin!');
+        });
+    }
+</script>
+
+<%- include('../layouts/footer') %>

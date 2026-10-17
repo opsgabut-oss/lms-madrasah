@@ -1,0 +1,112 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../layouts/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <a href="/guru/assignments" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1.5 mb-2">
+                    <i class="fas fa-arrow-left"></i> Kembali ke Daftar Tugas
+                </a>
+                <h1 class="text-2xl font-black text-slate-800 tracking-tight">Penilaian Tugas</h1>
+                <p class="text-xs sm:text-sm text-slate-500 font-medium">
+                    <%= assignment.class_grade %> • <%= assignment.class_name %> &mdash; <strong class="text-slate-800"><%= assignment.title %></strong>
+                </p>
+            </div>
+            <div class="bg-white px-4 py-2 rounded-2xl border border-slate-200 text-xs font-bold text-slate-600">
+                <i class="far fa-calendar-alt text-brand-600 mr-1.5"></i> Batas Pengumpulan: <%= assignment.deadline %>
+            </div>
+        </div>
+
+        <% if (message) { %>
+            <div class="p-4 rounded-xl text-sm font-bold flex items-center gap-3 <%= message.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200' %>">
+                <i class="fas <%= message.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' %> text-lg"></i>
+                <span><%= message.text %></span>
+            </div>
+        <% } %>
+
+        <!-- Submissions Table -->
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                <h2 class="text-base font-black text-slate-800">Daftar Pengumpulan Siswa</h2>
+                <span class="text-xs font-bold text-slate-400">Total: <%= submissions.length %> Siswa</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[11px] tracking-wider border-b border-slate-200">
+                        <tr>
+                            <th class="py-4 px-6">Nama Siswa</th>
+                            <th class="py-4 px-6">NIS</th>
+                            <th class="py-4 px-6">Status Pengumpulan</th>
+                            <th class="py-4 px-6">Jawaban / File</th>
+                            <th class="py-4 px-6">Nilai (0-100)</th>
+                            <th class="py-4 px-6">Catatan Evaluasi Guru</th>
+                            <th class="py-4 px-6 text-center">Simpan</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <% submissions.forEach(function(sub) { %>
+                            <tr class="hover:bg-slate-50/80 transition-colors">
+                                <td class="py-4 px-6 font-bold text-slate-800 flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs">
+                                        <%= sub.student_name.charAt(0) %>
+                                    </div>
+                                    <span><%= sub.student_name %></span>
+                                </td>
+                                <td class="py-4 px-6 font-mono text-xs font-bold text-brand-700"><%= sub.identity_number %></td>
+                                <td class="py-4 px-6">
+                                    <% if (sub.submitted_at) { %>
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                            <i class="fas fa-check-circle"></i> Sudah Diserahkan
+                                        </span>
+                                        <div class="text-[10px] text-slate-400 mt-0.5"><%= sub.submitted_at %></div>
+                                    <% } else { %>
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                            <i class="fas fa-hourglass-half"></i> Belum Mengumpulkan
+                                        </span>
+                                    <% } %>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <% if (sub.file_path) { %>
+                                        <a href="<%= sub.file_path %>" target="_blank" download class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition-colors mb-1">
+                                            <i class="fas fa-download text-brand-600"></i> Unduh Berkas
+                                        </a>
+                                    <% } %>
+                                    <% if (sub.submission_text) { %>
+                                        <div class="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100 max-w-xs whitespace-pre-line line-clamp-3">
+                                            <%= sub.submission_text %>
+                                        </div>
+                                    <% } %>
+                                    <% if (!sub.file_path && !sub.submission_text) { %>
+                                        <span class="text-xs text-slate-400 italic">Tidak ada berkas</span>
+                                    <% } %>
+                                </td>
+                                
+                                <form action="/guru/assignments/<%= assignment.id %>/grade" method="POST">
+                                    <input type="hidden" name="student_id" value="<%= sub.student_id %>">
+                                    <td class="py-4 px-6">
+                                        <input type="number" step="0.1" min="0" max="100" name="score" value="<%= sub.score !== null ? sub.score : '' %>" placeholder="Nilai" class="w-20 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-black text-center text-slate-800 outline-none focus:ring-2 focus:ring-brand-500">
+                                    </td>
+                                    <td class="py-4 px-6">
+                                        <input type="text" name="feedback" value="<%= sub.feedback || '' %>" placeholder="Beri masukan..." class="w-full min-w-[180px] px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-medium text-slate-800 outline-none focus:ring-2 focus:ring-brand-500">
+                                    </td>
+                                    <td class="py-4 px-6 text-center">
+                                        <button type="submit" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-all shadow hover:shadow-md">
+                                            Simpan
+                                        </button>
+                                    </td>
+                                </form>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<%- include('../layouts/footer') %>

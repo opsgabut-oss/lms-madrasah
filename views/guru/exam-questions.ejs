@@ -1,0 +1,183 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../layouts/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <a href="/guru/exams" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1.5 mb-2">
+                    <i class="fas fa-arrow-left"></i> Kembali ke Daftar Ujian
+                </a>
+                <h1 class="text-2xl font-black text-slate-800 tracking-tight">Bank Soal Ujian</h1>
+                <p class="text-xs sm:text-sm text-slate-500 font-medium">
+                    <%= exam.class_name %> &mdash; <strong class="text-slate-800"><%= exam.title %></strong>
+                </p>
+            </div>
+            <button onclick="document.getElementById('addQuestionModal').classList.remove('hidden')" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-sm shadow-lg shadow-brand-500/20 transition-all hover:scale-105">
+                <i class="fas fa-plus"></i> Tambah Butir Soal
+            </button>
+        </div>
+
+        <% if (message) { %>
+            <div class="p-4 rounded-xl text-sm font-bold flex items-center gap-3 <%= message.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200' %>">
+                <i class="fas <%= message.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' %> text-lg"></i>
+                <span><%= message.text %></span>
+            </div>
+        <% } %>
+
+        <div class="space-y-4">
+            <% if (questions.length === 0) { %>
+                <div class="bg-white p-12 rounded-3xl border border-dashed border-slate-300 text-center text-slate-400">
+                    <i class="fas fa-question-circle text-4xl mb-3 text-slate-300"></i>
+                    <h3 class="font-bold text-base text-slate-700">Belum ada butir soal</h3>
+                    <p class="text-xs mt-1">Tambahkan soal pilihan ganda atau esai untuk ujian ini.</p>
+                </div>
+            <% } else { %>
+                <% questions.forEach(function(q, idx) { %>
+                    <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm space-y-4">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="flex items-start gap-3">
+                                <span class="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-xs shrink-0">
+                                    <%= idx + 1 %>
+                                </span>
+                                <div>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-black uppercase <%= q.question_type === 'pg' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-amber-50 text-amber-700 border border-amber-200' %>">
+                                            <%= q.question_type === 'pg' ? 'Pilihan Ganda' : 'Esai / Uraian' %>
+                                        </span>
+                                        <span class="text-xs font-bold text-slate-400">• Bobot Nilai: <%= q.score_weight %> Poin</span>
+                                    </div>
+                                    <div class="text-sm font-bold text-slate-800 leading-relaxed whitespace-pre-line">
+                                        <%= q.question_text %>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <form action="/guru/exams/<%= exam.id %>/questions/<%= q.id %>/delete" method="POST" onsubmit="return confirm('Hapus butir soal ini?')">
+                                <button type="submit" class="p-2 text-slate-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors" title="Hapus Soal">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <% if (q.question_type === 'pg') { %>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs">
+                                <div class="p-3 rounded-xl <%= q.correct_answer === 'A' ? 'bg-emerald-50 border border-emerald-300 font-bold text-emerald-900' : 'bg-slate-50 border border-slate-100 text-slate-700' %>">
+                                    <span class="font-bold mr-1">A.</span> <%= q.option_a %>
+                                    <% if (q.correct_answer === 'A') { %> <span class="ml-2 text-emerald-600 font-black"><i class="fas fa-check"></i> Kunci</span> <% } %>
+                                </div>
+                                <div class="p-3 rounded-xl <%= q.correct_answer === 'B' ? 'bg-emerald-50 border border-emerald-300 font-bold text-emerald-900' : 'bg-slate-50 border border-slate-100 text-slate-700' %>">
+                                    <span class="font-bold mr-1">B.</span> <%= q.option_b %>
+                                    <% if (q.correct_answer === 'B') { %> <span class="ml-2 text-emerald-600 font-black"><i class="fas fa-check"></i> Kunci</span> <% } %>
+                                </div>
+                                <div class="p-3 rounded-xl <%= q.correct_answer === 'C' ? 'bg-emerald-50 border border-emerald-300 font-bold text-emerald-900' : 'bg-slate-50 border border-slate-100 text-slate-700' %>">
+                                    <span class="font-bold mr-1">C.</span> <%= q.option_c %>
+                                    <% if (q.correct_answer === 'C') { %> <span class="ml-2 text-emerald-600 font-black"><i class="fas fa-check"></i> Kunci</span> <% } %>
+                                </div>
+                                <div class="p-3 rounded-xl <%= q.correct_answer === 'D' ? 'bg-emerald-50 border border-emerald-300 font-bold text-emerald-900' : 'bg-slate-50 border border-slate-100 text-slate-700' %>">
+                                    <span class="font-bold mr-1">D.</span> <%= q.option_d %>
+                                    <% if (q.correct_answer === 'D') { %> <span class="ml-2 text-emerald-600 font-black"><i class="fas fa-check"></i> Kunci</span> <% } %>
+                                </div>
+                                <% if (q.option_e) { %>
+                                    <div class="p-3 rounded-xl <%= q.correct_answer === 'E' ? 'bg-emerald-50 border border-emerald-300 font-bold text-emerald-900' : 'bg-slate-50 border border-slate-100 text-slate-700' %>">
+                                        <span class="font-bold mr-1">E.</span> <%= q.option_e %>
+                                        <% if (q.correct_answer === 'E') { %> <span class="ml-2 text-emerald-600 font-black"><i class="fas fa-check"></i> Kunci</span> <% } %>
+                                    </div>
+                                <% } %>
+                            </div>
+                        <% } %>
+                    </div>
+                <% }); %>
+            <% } %>
+        </div>
+
+        <!-- Modal Add Question -->
+        <div id="addQuestionModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                    <h3 class="text-lg font-black text-slate-800">Tambah Butir Soal Baru</h3>
+                    <button onclick="document.getElementById('addQuestionModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 text-lg">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form action="/guru/exams/<%= exam.id %>/questions/add" method="POST" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Tipe Soal</label>
+                            <select name="question_type" id="qTypeSelect" onchange="toggleQuestionType()" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-bold text-slate-800">
+                                <option value="pg">Pilihan Ganda (PG)</option>
+                                <option value="esai">Esai / Uraian</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Bobot Nilai</label>
+                            <input type="number" step="0.5" name="score_weight" value="20" required class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs font-bold text-slate-800 text-center">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Teks Pertanyaan</label>
+                        <textarea name="question_text" rows="3" required placeholder="Tuliskan pertanyaan soal secara lengkap..." class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm text-slate-800"></textarea>
+                    </div>
+
+                    <div id="pgOptionsGroup" class="space-y-3 pt-2 border-t border-slate-100">
+                        <div class="text-xs font-bold text-slate-700">Pilihan Jawaban:</div>
+                        
+                        <div>
+                            <input type="text" name="option_a" placeholder="Pilihan A" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs">
+                        </div>
+                        <div>
+                            <input type="text" name="option_b" placeholder="Pilihan B" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs">
+                        </div>
+                        <div>
+                            <input type="text" name="option_c" placeholder="Pilihan C" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs">
+                        </div>
+                        <div>
+                            <input type="text" name="option_d" placeholder="Pilihan D" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs">
+                        </div>
+                        <div>
+                            <input type="text" name="option_e" placeholder="Pilihan E (Opsional)" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Kunci Jawaban Benar</label>
+                            <select name="correct_answer" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 font-black text-xs text-brand-700">
+                                <option value="A">Opsi A</option>
+                                <option value="B">Opsi B</option>
+                                <option value="C">Opsi C</option>
+                                <option value="D">Opsi D</option>
+                                <option value="E">Opsi E</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex items-center justify-end gap-3">
+                        <button type="button" onclick="document.getElementById('addQuestionModal').classList.add('hidden')" class="px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-bold text-sm">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-sm shadow-md transition-all">
+                            Simpan Soal
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    function toggleQuestionType() {
+        const type = document.getElementById('qTypeSelect').value;
+        const group = document.getElementById('pgOptionsGroup');
+        if (type === 'esai') {
+            group.classList.add('hidden');
+        } else {
+            group.classList.remove('hidden');
+        }
+    }
+</script>
+
+<%- include('../layouts/footer') %>

@@ -1,0 +1,119 @@
+<aside id="sidebar" class="fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 lg:static transition-transform duration-200 ease-in-out flex flex-col justify-between pt-16 lg:pt-0">
+    <div class="p-4 space-y-6 overflow-y-auto">
+        <!-- Profile Mini Widget -->
+        <div class="p-4 rounded-2xl bg-gradient-to-br from-emerald-50 via-teal-50 to-slate-50 border border-emerald-200/80 shadow-xs">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-700 to-teal-800 text-white flex items-center justify-center font-bold text-lg shadow-sm shrink-0">
+                    <i class="fas <%= currentUser.role === 'guru' ? 'fa-chalkboard-teacher' : 'fa-user-graduate' %>"></i>
+                </div>
+                <div class="overflow-hidden">
+                    <h3 class="text-sm font-extrabold text-slate-900 truncate"><%= currentUser.name %></h3>
+                    <p class="text-xs text-emerald-800 font-bold truncate"><%= currentUser.identity_number %></p>
+                </div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-emerald-200/60 flex items-center justify-between text-[11px] text-slate-500 font-semibold">
+                <span>Peran:</span>
+                <span class="px-2.5 py-0.5 rounded-full font-extrabold text-[10px] uppercase tracking-wider <%= currentUser.role === 'guru' ? 'bg-emerald-700 text-white' : 'bg-blue-700 text-white' %>">
+                    <%= currentUser.role === 'guru' ? 'Guru' : 'Siswa' %>
+                </span>
+            </div>
+        </div>
+
+        <!-- Navigation Menu -->
+        <nav class="space-y-1">
+            <div class="px-3 pb-2 text-[10px] font-black uppercase tracking-wider text-slate-400">Navigasi Utama</div>
+
+            <% if (currentUser.role === 'guru') { %>
+                <a href="/guru/dashboard" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all <%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>">
+                    <i class="fas fa-th-large w-5 text-center"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/guru/madrasah" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all <%= typeof activePage !== 'undefined' && activePage === 'madrasah' ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>">
+                    <i class="fas fa-mosque w-5 text-center <%= typeof activePage !== 'undefined' && activePage === 'madrasah' ? 'text-white' : 'text-emerald-700' %>"></i>
+                    <span>Profil Madrasah</span>
+                </a>
+                <a href="/guru/classes" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all <%= typeof activePage !== 'undefined' && activePage === 'classes' ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>">
+                    <i class="fas fa-door-open w-5 text-center"></i>
+                    <span>Ruang Kelas</span>
+                </a>
+                <a href="/guru/assignments" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all <%= typeof activePage !== 'undefined' && activePage === 'assignments' ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>">
+                    <i class="fas fa-tasks w-5 text-center"></i>
+                    <span>Kelola Tugas</span>
+                </a>
+                <a href="/guru/exams" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all <%= typeof activePage !== 'undefined' && activePage === 'exams' ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>">
+                    <i class="fas fa-laptop-code w-5 text-center"></i>
+                    <span>Ujian Online (CBT)</span>
+                </a>
+                <a href="/guru/attendances" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all <%= typeof activePage !== 'undefined' && activePage === 'attendances' ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>">
+                    <i class="fas fa-calendar-check w-5 text-center"></i>
+                    <span>Absensi Digital</span>
+                </a>
+                <a href="/guru/journal" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all <%= typeof activePage !== 'undefined' && activePage === 'journal' ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>">
+                    <i class="fas fa-book-open w-5 text-center"></i>
+                    <span>Jurnal Mengajar</span>
+                </a>
+                <a href="/guru/grades" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all <%= typeof activePage !== 'undefined' && activePage === 'grades' ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>">
+                    <i class="fas fa-chart-line w-5 text-center"></i>
+                    <span>Rekap Nilai Siswa</span>
+                </a>
+            <% } else { %>
+                <a href="/siswa/dashboard" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all <%= typeof activePage !== 'undefined' && activePage === 'dashboard' ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>">
+                    <i class="fas fa-th-large w-5 text-center"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/siswa/madrasah" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all <%= typeof activePage !== 'undefined' && activePage === 'madrasah' ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>">
+                    <i class="fas fa-mosque w-5 text-center <%= typeof activePage !== 'undefined' && activePage === 'madrasah' ? 'text-white' : 'text-emerald-700' %>"></i>
+                    <span>Profil Madrasah</span>
+                </a>
+                <a href="/siswa/classes" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all <%= typeof activePage !== 'undefined' && activePage === 'classes' ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>">
+                    <i class="fas fa-chalkboard w-5 text-center"></i>
+                    <span>Kelas Saya</span>
+                </a>
+                <a href="/siswa/assignments" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all <%= typeof activePage !== 'undefined' && activePage === 'assignments' ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>">
+                    <i class="fas fa-tasks w-5 text-center"></i>
+                    <span>Tugas Siswa</span>
+                </a>
+                <a href="/siswa/exams" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all <%= typeof activePage !== 'undefined' && activePage === 'exams' ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>">
+                    <i class="fas fa-laptop-code w-5 text-center"></i>
+                    <span>Ujian Online (CBT)</span>
+                </a>
+                <a href="/siswa/grades" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all <%= typeof activePage !== 'undefined' && activePage === 'grades' ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900' %>">
+                    <i class="fas fa-award w-5 text-center"></i>
+                    <span>Riwayat Nilai</span>
+                </a>
+            <% } %>
+        </nav>
+    </div>
+
+    <!-- Quick Logout & Support Bottom -->
+    <div class="p-4 border-t border-slate-100 space-y-2">
+        <a href="/auth/logout" class="flex items-center gap-3 px-3.5 py-2 rounded-xl font-bold text-sm text-red-600 hover:bg-red-50 transition-colors">
+            <i class="fas fa-sign-out-alt w-5 text-center"></i>
+            <span>Keluar Akun</span>
+        </a>
+        <div class="text-[11px] text-slate-400 font-medium px-3 pt-1">
+            LMS Platform &copy; 2026
+        </div>
+    </div>
+</aside>
+
+<!-- Backdrop on mobile -->
+<div id="sidebarBackdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-20 hidden lg:hidden"></div>
+
+<script>
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+
+    if (mobileMenuBtn && sidebar && sidebarBackdrop) {
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebarBackdrop.classList.toggle('hidden');
+        });
+
+        sidebarBackdrop.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            sidebarBackdrop.classList.add('hidden');
+        });
+    }
+</script>

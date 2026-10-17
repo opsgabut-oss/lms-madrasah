@@ -1,0 +1,83 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../layouts/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
+        <div>
+            <h1 class="text-2xl font-black text-slate-800 tracking-tight">Riwayat Nilai & Raport Belajar</h1>
+            <p class="text-xs sm:text-sm text-slate-500 font-medium">Rekapitulasi pencapaian tugas, nilai ujian, serta persentase kehadiran Anda</p>
+        </div>
+
+        <div class="space-y-6">
+            <% if (reports.length === 0) { %>
+                <div class="bg-white p-12 rounded-3xl border border-dashed border-slate-300 text-center text-slate-400">
+                    <i class="fas fa-award text-4xl mb-3 text-slate-300"></i>
+                    <h3 class="font-bold text-base text-slate-700">Belum ada riwayat nilai</h3>
+                    <p class="text-xs mt-1">Nilai akan otomatis muncul setelah Anda menyelesaikan tugas atau ujian.</p>
+                </div>
+            <% } else { %>
+                <% reports.forEach(function(rep) { %>
+                    <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                            <div>
+                                <span class="px-2.5 py-0.5 rounded-lg text-xs font-black bg-brand-50 text-brand-700 border border-brand-200">
+                                    <%= rep.classInfo.grade %>
+                                </span>
+                                <h2 class="text-lg font-black text-slate-800 mt-1"><%= rep.classInfo.name %></h2>
+                                <p class="text-xs text-slate-400">Guru: <%= rep.classInfo.teacher_name %></p>
+                            </div>
+                            <div class="text-xs font-bold text-slate-600 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-200">
+                                <i class="fas fa-calendar-check text-brand-600 mr-1.5"></i> Kehadiran: <strong class="text-slate-800"><%= rep.attendancePct %>%</strong>
+                            </div>
+                        </div>
+
+                        <!-- Grades Breakdown -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Assignments List -->
+                            <div class="space-y-3">
+                                <h3 class="text-xs font-black uppercase tracking-wider text-slate-400">Nilai Tugas:</h3>
+                                <% if (rep.assignments.length === 0) { %>
+                                    <p class="text-xs text-slate-400 italic">Belum ada tugas dinilai.</p>
+                                <% } else { %>
+                                    <div class="space-y-2">
+                                        <% rep.assignments.forEach(function(asg) { %>
+                                            <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs">
+                                                <span class="font-bold text-slate-700 truncate max-w-[200px]"><%= asg.title %></span>
+                                                <span class="font-black px-2 py-0.5 rounded <%= asg.score !== null ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-500' %>">
+                                                    <%= asg.score !== null ? asg.score : 'Belum Dinilai' %>
+                                                </span>
+                                            </div>
+                                        <% }); %>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <!-- Exams List -->
+                            <div class="space-y-3">
+                                <h3 class="text-xs font-black uppercase tracking-wider text-slate-400">Nilai Ujian CBT:</h3>
+                                <% if (rep.exams.length === 0) { %>
+                                    <p class="text-xs text-slate-400 italic">Belum ada ujian diselesaikan.</p>
+                                <% } else { %>
+                                    <div class="space-y-2">
+                                        <% rep.exams.forEach(function(ex) { %>
+                                            <div class="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs">
+                                                <span class="font-bold text-slate-700 truncate max-w-[200px]"><%= ex.title %></span>
+                                                <span class="font-black px-2 py-0.5 rounded <%= ex.status === 'submitted' ? 'bg-purple-100 text-purple-800' : 'bg-slate-200 text-slate-500' %>">
+                                                    <%= ex.status === 'submitted' ? ex.total_score : 'Belum Selesai' %>
+                                                </span>
+                                            </div>
+                                        <% }); %>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } %>
+        </div>
+    </main>
+</div>
+
+<%- include('../layouts/footer') %>

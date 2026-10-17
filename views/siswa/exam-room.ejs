@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="id" class="select-none">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ujian CBT: <%= exam.title %> | Oemah Sinau LMS</title>
+    <link rel="icon" type="image/png" href="https://lms.oemahsinau.online/favicon.png">
+    
+    <!-- Google Fonts Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { user-select: none; -webkit-user-select: none; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen flex flex-col justify-between" oncontextmenu="return false;">
+
+    <!-- Top Security Bar -->
+    <header class="bg-slate-900 text-white sticky top-0 z-40 border-b border-slate-800 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-brand-500 rounded-xl flex items-center justify-center font-bold text-slate-900">
+                    <i class="fas fa-shield-alt text-base"></i>
+                </div>
+                <div>
+                    <h1 class="text-sm sm:text-base font-black truncate max-w-[200px] sm:max-w-md"><%= exam.title %></h1>
+                    <div class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">CBT Anti-Cheat Secured Room</div>
+                </div>
+            </div>
+
+            <!-- Timer Countdown -->
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 px-4 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-amber-400 font-mono font-black text-sm sm:text-base shadow-inner">
+                    <i class="fas fa-stopwatch animate-pulse"></i>
+                    <span id="countdownTimer">--:--</span>
+                </div>
+
+                <button onclick="requestSubmitExam()" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs rounded-xl shadow transition-all flex items-center gap-1.5">
+                    <i class="fas fa-check-circle"></i> Selesai Ujian
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Fullscreen Prompt Overlay (Required before start) -->
+    <div id="fullscreenOverlay" class="fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-md flex items-center justify-center p-6 text-white text-center">
+        <div class="max-w-md space-y-6">
+            <div class="w-20 h-20 rounded-3xl bg-brand-500/20 text-brand-400 border border-brand-500/30 flex items-center justify-center mx-auto text-3xl shadow-2xl">
+                <i class="fas fa-expand"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-black">Mode Layar Penuh (Fullscreen)</h2>
+                <p class="text-slate-300 text-xs sm:text-sm mt-2 leading-relaxed">
+                    Sesuai standar keamanan Oemah Sinau LMS, ujian ini wajib dijalankan dalam mode layar penuh. Berpindah tab atau aplikasi akan dicatat sebagai pelanggaran.
+                </p>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 text-xs text-slate-300 text-left space-y-1.5">
+                <div class="font-bold text-brand-300"><i class="fas fa-exclamation-triangle mr-1"></i> Aturan Ujian:</div>
+                <div>• Batas toleransi keluar layar: <strong><%= exam.tab_switch_limit %> kali</strong>.</div>
+                <div>• Soal dan opsi jawaban diacak otomatis.</div>
+                <div>• Dilarang menggunakan tombol klik kanan, copy, atau inspect element.</div>
+            </div>
+            <button onclick="enterExamFullscreen()" class="w-full py-4 rounded-xl bg-brand-500 hover:bg-brand-400 text-slate-950 font-black text-sm shadow-xl transition-all">
+                Mulai Kerjakan Ujian Sekarang <i class="fas fa-arrow-right ml-1"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Violation Warning Modal -->
+    <div id="violationModal" class="fixed inset-0 z-50 bg-red-950/80 backdrop-blur-md hidden flex items-center justify-center p-6 text-white text-center">
+        <div class="bg-slate-900 border-2 border-red-500 rounded-3xl max-w-md p-8 shadow-2xl space-y-5 animate-bounce">
+            <div class="w-16 h-16 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center mx-auto text-3xl border border-red-500">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-black text-red-400">PERINGATAN KECURANGAN!</h3>
+                <p class="text-xs text-slate-300 mt-2 leading-relaxed">
+                    Anda terdeteksi keluar dari halaman ujian atau berpindah tab!
+                </p>
+                <div class="mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm font-bold">
+                    Pelanggaran Ke: <span id="violationCountDisplay">1</span> / <%= exam.tab_switch_limit %>
+                </div>
+            </div>
+            <p class="text-[11px] text-slate-400">
+                Jika Anda melanggar melebihi batas toleransi, sistem akan otomatis mengumpulkan lembar jawaban Anda!
+            </p>
+            <button onclick="dismissViolationModal()" class="w-full py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs uppercase tracking-wider">
+                Saya Mengerti & Kembali ke Ujian
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Exam Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col lg:flex-row gap-6">
+        <!-- Question Pane (Left) -->
+        <div class="flex-1 space-y-6">
+            <% questions.forEach(function(q, idx) { %>
+                <div id="questionCard_<%= idx %>" class="question-card <%= idx === 0 ? '' : 'hidden' %> bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-6">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                        <div class="flex items-center gap-3">
+                            <span class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-black text-sm">
+                                <%= idx + 1 %>
+                            </span>
+                            <div>
+                                <span class="text-[10px] font-black uppercase text-brand-600">Soal Nomor <%= idx + 1 %> dari <%= questions.length %></span>
+                                <div class="text-xs font-bold text-slate-400"><%= q.question_type === 'pg' ? 'Pilihan Ganda' : 'Esai' %> • <%= q.score_weight %> Poin</div>
+                            </div>
+                        </div>
+
+                        <!-- Flag / Ragu-ragu Toggle -->
+                        <button type="button" onclick="toggleFlagQuestion(<%= idx %>)" id="flagBtn_<%= idx %>" class="px-3 py-1.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold flex items-center gap-1.5 transition-colors">
+                            <i class="far fa-flag"></i> <span>Ragu-Ragu</span>
+                        </button>
+                    </div>
+
+                    <!-- Question Text -->
+                    <div class="text-base sm:text-lg font-bold text-slate-800 leading-relaxed whitespace-pre-line">
+                        <%= q.question_text %>
+                    </div>
+
+                    <!-- Options for Multiple Choice -->
+                    <% if (q.question_type === 'pg') { %>
+                        <div class="space-y-3 pt-2">
+                            <% const optKeys = ['A', 'B', 'C', 'D', 'E']; %>
+                            <% const opts = [
+                                { k: 'A', val: q.option_a },
+                                { k: 'B', val: q.option_b },
+                                { k: 'C', val: q.option_c },
+                                { k: 'D', val: q.option_d },
+                                { k: 'E', val: q.option_e }
+                            ].filter(o => o.val); %>
+
+                            <% opts.forEach(function(o) { %>
+                                <label class="flex items-center gap-4 p-4 rounded-2xl border border-slate-200 hover:border-brand-500 hover:bg-emerald-50/30 cursor-pointer transition-all">
+                                    <input type="radio" name="answer_<%= q.id %>" value="<%= o.k %>" onchange="recordAnswer(<%= q.id %>, '<%= o.k %>', <%= idx %>)" <%= savedAnswers[q.id] === o.k ? 'checked' : '' %> class="w-5 h-5 text-brand-500 focus:ring-0 cursor-pointer">
+                                    <span class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-black text-xs flex items-center justify-center shrink-0">
+                                        <%= o.k %>
+                                    </span>
+                                    <span class="text-sm font-semibold text-slate-700 leading-snug"><%= o.val %></span>
+                                </label>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <!-- Essay Box -->
+                        <div class="pt-2">
+                            <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Jawaban Uraian Anda:</label>
+                            <textarea id="essay_<%= q.id %>" oninput="recordEssayAnswer(<%= q.id %>, <%= idx %>)" rows="5" placeholder="Ketik jawaban lengkap Anda di sini..." class="w-full p-4 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white text-sm text-slate-800 outline-none focus:ring-2 focus:ring-brand-500"><%= savedAnswers[q.id] || '' %></textarea>
+                        </div>
+                    <% } %>
+
+                    <!-- Prev / Next Navigation Controls -->
+                    <div class="pt-6 border-t border-slate-100 flex items-center justify-between">
+                        <button type="button" onclick="navigateQuestion(<%= idx - 1 %>)" <%= idx === 0 ? 'disabled' : '' %> class="px-5 py-2.5 rounded-xl border border-slate-200 font-bold text-xs text-slate-700 hover:bg-slate-100 disabled:opacity-30 disabled:pointer-events-none transition-colors">
+                            <i class="fas fa-chevron-left mr-1"></i> Sebelumnya
+                        </button>
+
+                        <button type="button" onclick="navigateQuestion(<%= idx + 1 %>)" <%= idx === questions.length - 1 ? 'disabled' : '' %> class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs disabled:opacity-30 disabled:pointer-events-none transition-all shadow">
+                            Selanjutnya <i class="fas fa-chevron-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+
+        <!-- Question Palette Grid (Right Column) -->
+        <div class="w-full lg:w-72 space-y-4">
+            <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <h3 class="text-sm font-black text-slate-800">Navigasi Soal</h3>
+                    <span class="text-xs font-bold text-slate-400" id="answeredProgress">0 / <%= questions.length %></span>
+                </div>
+
+                <!-- Palette Grid -->
+                <div class="grid grid-cols-5 gap-2 max-h-72 overflow-y-auto p-1">
+                    <% questions.forEach(function(q, idx) { %>
+                        <button type="button" onclick="navigateQuestion(<%= idx %>)" id="paletteBtn_<%= idx %>" class="palette-btn w-10 h-10 rounded-xl font-black text-xs transition-all flex items-center justify-center <%= savedAnswers[q.id] ? 'bg-emerald-500 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' %>">
+                            <%= idx + 1 %>
+                        </button>
+                    <% }); %>
+                </div>
+
+                <!-- Legend -->
+                <div class="pt-3 border-t border-slate-100 space-y-1.5 text-[11px] font-bold text-slate-500">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3.5 h-3.5 rounded bg-emerald-500 inline-block"></span>
+                        <span>Sudah Dijawab</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3.5 h-3.5 rounded bg-amber-400 inline-block"></span>
+                        <span>Ragu-Ragu</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3.5 h-3.5 rounded bg-slate-200 inline-block"></span>
+                        <span>Belum Dijawab</span>
+                    </div>
+                </div>
+
+                <!-- Submit Button in Palette -->
+                <div class="pt-2">
+                    <button type="button" onclick="requestSubmitExam()" class="w-full py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-950 font-black text-xs shadow-md transition-all">
+                        Kumpulkan Lembar Jawaban
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Final Submit Confirmation Modal -->
+    <div id="submitModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 text-center space-y-4">
+            <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-3xl">
+                <i class="fas fa-check-double"></i>
+            </div>
+            <div>
+                <h3 class="text-xl font-black text-slate-800">Selesaikan Ujian?</h3>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+                    Pastikan seluruh butir soal telah dijawab dengan teliti sebelum mengirimkan lembar ujian.
+                </p>
+                <div class="mt-3 p-3 rounded-xl bg-slate-50 text-xs font-bold text-slate-700" id="submitStatsDisplay">
+                    --
+                </div>
+            </div>
+            <div class="flex items-center justify-center gap-3 pt-2">
+                <button type="button" onclick="document.getElementById('submitModal').classList.add('hidden')" class="px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-bold text-xs">
+                    Periksa Kembali
+                </button>
+                <form id="finalSubmitForm" action="/siswa/exams/<%= exam.id %>/submit" method="POST">
+                    <input type="hidden" name="answers" id="finalAnswersPayload">
+                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs shadow-md">
+                        Ya, Kumpulkan Sekarang
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- CBT Script Logic -->
+    <script>
+        const examId = <%= exam.id %>;
+        const totalDurationMinutes = <%= exam.duration_minutes %>;
+        const tabSwitchLimit = <%= exam.tab_switch_limit %>;
+        const totalQuestions = <%= questions.length %>;
+        
+        let answers = <%- JSON.stringify(savedAnswers || {}) %>;
+        let flaggedQuestions = {};
+        let currentQuestionIdx = 0;
+        let tabSwitchCount = <%= session.tab_switch_count || 0 %>;
+        let isSubmitted = false;
+
+        // 1. Timer Logic (Calculated from start_time)
+        const sessionStartTime = new Date('<%= session.start_time %>').getTime();
+        const examDurationMs = totalDurationMinutes * 60 * 1000;
+        const examEndTime = sessionStartTime + examDurationMs;
+
+        function updateTimer() {
+            if (isSubmitted) return;
+            const now = Date.now();
+            const remaining = examEndTime - now;
+
+            if (remaining <= 0) {
+                document.getElementById('countdownTimer').innerText = '00:00';
+                autoSubmitExam('Waktu pengerjaan ujian telah habis!');
+                return;
+            }
+
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            document.getElementById('countdownTimer').innerText = 
+                (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+
+            setTimeout(updateTimer, 1000);
+        }
+        updateTimer();
+
+        // 2. Fullscreen Enforcement
+        function enterExamFullscreen() {
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.warn('Fullscreen request bypassed:', err);
+                });
+            }
+            document.getElementById('fullscreenOverlay').classList.add('hidden');
+        }
+
+        // 3. Tab Switch / Window Blur Detection
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden && !isSubmitted) {
+                handleViolation();
+            }
+        });
+
+        window.addEventListener('blur', function () {
+            if (!isSubmitted) {
+                handleViolation();
+            }
+        });
+
+        function handleViolation() {
+            tabSwitchCount++;
+            document.getElementById('violationCountDisplay').innerText = tabSwitchCount;
+            document.getElementById('violationModal').classList.remove('hidden');
+
+            // Send heartbeat to server
+            fetch('/siswa/exams/' + examId + '/heartbeat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers: answers, tab_switch_count: tabSwitchCount })
+            }).then(res => res.json()).then(data => {
+                if (data.limit_reached) {
+                    autoSubmitExam('Anda telah melanggar batas toleransi perpindahan tab!');
+                }
+            });
+        }
+
+        function dismissViolationModal() {
+            document.getElementById('violationModal').classList.add('hidden');
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            }
+        }
+
+        // 4. Anti-cheat Shortcuts Prevention
+        document.addEventListener('keydown', function (e) {
+            // Block F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U, Ctrl+C, Ctrl+V
+            if (e.key === 'F12' || 
+               (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j')) ||
+               (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.key === 'c' || e.key === 'C' || e.key === 'v' || e.key === 'V'))) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // 5. Answer Recording & Autosave
+        function recordAnswer(questionId, val, idx) {
+            answers[questionId] = val;
+            updatePaletteStatus(idx);
+            autosave();
+        }
+
+        function recordEssayAnswer(questionId, idx) {
+            const val = document.getElementById('essay_' + questionId).value;
+            answers[questionId] = val;
+            updatePaletteStatus(idx);
+            autosave();
+        }
+
+        let autosaveTimeout = null;
+        function autosave() {
+            clearTimeout(autosaveTimeout);
+            autosaveTimeout = setTimeout(() => {
+                fetch('/siswa/exams/' + examId + '/heartbeat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ answers: answers, tab_switch_count: tabSwitchCount })
+                });
+            }, 800);
+        }
+
+        // 6. Navigation
+        function navigateQuestion(newIdx) {
+            if (newIdx < 0 || newIdx >= totalQuestions) return;
+            document.getElementById('questionCard_' + currentQuestionIdx).classList.add('hidden');
+            document.getElementById('questionCard_' + newIdx).classList.remove('hidden');
+            currentQuestionIdx = newIdx;
+        }
+
+        function toggleFlagQuestion(idx) {
+            flaggedQuestions[idx] = !flaggedQuestions[idx];
+            const btn = document.getElementById('flagBtn_' + idx);
+            if (flaggedQuestions[idx]) {
+                btn.classList.add('bg-amber-400', 'text-slate-900');
+                btn.classList.remove('bg-amber-50', 'text-amber-800');
+            } else {
+                btn.classList.remove('bg-amber-400', 'text-slate-900');
+                btn.classList.add('bg-amber-50', 'text-amber-800');
+            }
+            updatePaletteStatus(idx);
+        }
+
+        function updatePaletteStatus(idx) {
+            const btn = document.getElementById('paletteBtn_' + idx);
+            if (!btn) return;
+
+            // Check if question is answered
+            const card = document.getElementById('questionCard_' + idx);
+            let hasAnswer = false;
+            const checkedRadio = card.querySelector('input[type="radio"]:checked');
+            const textarea = card.querySelector('textarea');
+            if (checkedRadio || (textarea && textarea.value.trim())) {
+                hasAnswer = true;
+            }
+
+            if (flaggedQuestions[idx]) {
+                btn.className = 'palette-btn w-10 h-10 rounded-xl font-black text-xs transition-all flex items-center justify-center bg-amber-400 text-slate-950 shadow-sm';
+            } else if (hasAnswer) {
+                btn.className = 'palette-btn w-10 h-10 rounded-xl font-black text-xs transition-all flex items-center justify-center bg-emerald-500 text-white shadow-sm';
+            } else {
+                btn.className = 'palette-btn w-10 h-10 rounded-xl font-black text-xs transition-all flex items-center justify-center bg-slate-100 text-slate-600 hover:bg-slate-200';
+            }
+
+            updateProgressCount();
+        }
+
+        function updateProgressCount() {
+            const answeredCount = Object.keys(answers).filter(k => answers[k] && answers[k].toString().trim()).length;
+            document.getElementById('answeredProgress').innerText = answeredCount + ' / ' + totalQuestions;
+        }
+        updateProgressCount();
+
+        // 7. Submission
+        function requestSubmitExam() {
+            const answeredCount = Object.keys(answers).filter(k => answers[k] && answers[k].toString().trim()).length;
+            document.getElementById('submitStatsDisplay').innerText = 'Terjawab: ' + answeredCount + ' dari ' + totalQuestions + ' Soal';
+            document.getElementById('finalAnswersPayload').value = JSON.stringify(answers);
+            document.getElementById('submitModal').classList.remove('hidden');
+        }
+
+        function autoSubmitExam(reason) {
+            if (isSubmitted) return;
+            isSubmitted = true;
+            alert(reason);
+            document.getElementById('finalAnswersPayload').value = JSON.stringify(answers);
+            document.getElementById('finalSubmitForm').submit();
+        }
+    </script>
+</body>
+</html>

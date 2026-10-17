@@ -1,0 +1,156 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../layouts/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-black text-slate-800 tracking-tight">Absensi Kelas Digital</h1>
+                <p class="text-xs sm:text-sm text-slate-500 font-medium">Rekapitulasi dan pengelolaan presensi kehadiran siswa per pertemuan</p>
+            </div>
+            <button onclick="document.getElementById('quickAttendanceModal').classList.remove('hidden')" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-sm shadow-lg shadow-brand-500/20 transition-all hover:scale-105">
+                <i class="fas fa-calendar-plus"></i> Buka Presensi Baru
+            </button>
+        </div>
+
+        <% if (message) { %>
+            <div class="p-4 rounded-xl text-sm font-bold flex items-center gap-3 <%= message.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200' %>">
+                <i class="fas <%= message.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' %> text-lg"></i>
+                <span><%= message.text %></span>
+            </div>
+        <% } %>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <% if (attendances.length === 0) { %>
+                <div class="col-span-full bg-white p-12 rounded-3xl border border-dashed border-slate-300 text-center text-slate-400">
+                    <i class="fas fa-calendar-times text-4xl mb-3 text-slate-300"></i>
+                    <h3 class="font-bold text-base text-slate-700">Belum ada sesi presensi</h3>
+                    <p class="text-xs mt-1">Buka sesi presensi untuk mulai mencatat kehadiran siswa di kelas.</p>
+                </div>
+            <% } else { %>
+                <% attendances.forEach(function(att) { %>
+                    <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="px-2.5 py-1 rounded-xl text-xs font-black bg-brand-50 text-brand-700 border border-brand-200">
+                                    <%= att.class_grade %> • <%= att.class_name %>
+                                </span>
+                                <span class="text-xs font-bold text-slate-500 font-mono"><%= att.date %></span>
+                            </div>
+
+                            <h2 class="text-base font-black text-slate-800 leading-snug"><%= att.title %></h2>
+                            
+                            <div class="text-xs text-slate-500 flex items-center gap-1.5 font-medium">
+                                <i class="far fa-clock text-slate-400"></i> Waktu: <%= att.start_time %> - <%= att.end_time %> WIB
+                            </div>
+                        </div>
+
+                        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                            <div class="text-xs font-bold text-emerald-600 flex items-center gap-1.5">
+                                <i class="fas fa-user-check"></i>
+                                <span><%= att.hadir_count || 0 %> Hadir</span>
+                            </div>
+                            <a href="/guru/attendances/<%= att.id %>" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1 transition-all">
+                                <span>Input & Periksa</span>
+                                <i class="fas fa-arrow-right text-[10px]"></i>
+                            </a>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } %>
+        </div>
+
+        <!-- Modal Quick Open Attendance -->
+        <div id="quickAttendanceModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                    <h3 class="text-lg font-black text-slate-800">Buka Sesi Presensi Baru</h3>
+                    <button onclick="document.getElementById('quickAttendanceModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 text-lg">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form id="attendanceCreateForm" onsubmit="handleAttendanceSubmit(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Pilih Kelas</label>
+                        <select id="attClassSelect" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-bold text-slate-800">
+                            <option value="">-- Pilih Kelas --</option>
+                            <% classes.forEach(function(cls) { %>
+                                <option value="<%= cls.id %>"><%= cls.grade %> - <%= cls.name %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Judul / Pertemuan</label>
+                        <input type="text" id="attTitleInput" required placeholder="Contoh: Presensi Pertemuan 1" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-semibold">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Tanggal</label>
+                        <input type="date" id="attDateInput" required value="<%= new Date().toISOString().split('T')[0] %>" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-bold text-slate-700">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Jam Mulai</label>
+                            <input type="time" id="attStartInput" required value="07:00" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-bold text-slate-700">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Jam Selesai</label>
+                            <input type="time" id="attEndInput" required value="23:59" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-sm font-bold text-slate-700">
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex items-center justify-end gap-3">
+                        <button type="button" onclick="document.getElementById('quickAttendanceModal').classList.add('hidden')" class="px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-bold text-sm">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-sm shadow-md transition-all">
+                            Buka Presensi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    function handleAttendanceSubmit(e) {
+        e.preventDefault();
+        const classId = document.getElementById('attClassSelect').value;
+        if (!classId) return alert('Pilih kelas terlebih dahulu.');
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/guru/classes/' + classId + '/attendances/create';
+
+        const title = document.createElement('input');
+        title.name = 'title';
+        title.value = document.getElementById('attTitleInput').value;
+        form.appendChild(title);
+
+        const date = document.createElement('input');
+        date.name = 'date';
+        date.value = document.getElementById('attDateInput').value;
+        form.appendChild(date);
+
+        const start = document.createElement('input');
+        start.name = 'start_time';
+        start.value = document.getElementById('attStartInput').value;
+        form.appendChild(start);
+
+        const end = document.createElement('input');
+        end.name = 'end_time';
+        end.value = document.getElementById('attEndInput').value;
+        form.appendChild(end);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>
+
+<%- include('../layouts/footer') %>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; }
+        @media print {
+            .no-print { display: none !important; }
+            body { padding: 0; background: white; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 p-8 text-slate-900">
+
+    <div class="max-w-4xl mx-auto bg-white p-10 rounded-2xl shadow border border-slate-200">
+        <!-- Action Button -->
+        <div class="no-print flex justify-end gap-3 mb-6">
+            <button onclick="window.print()" class="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold shadow hover:bg-slate-800">
+                🖨️ Cetak / Simpan PDF
+            </button>
+        </div>
+
+        <!-- School / Letterhead Header -->
+        <div class="text-center pb-6 border-b-2 border-slate-900 mb-6">
+            <h1 class="text-xl font-black uppercase tracking-wider text-slate-900">REKAPITULASI HASIL EVALUASI PEMBELAJARAN</h1>
+            <h2 class="text-base font-bold text-slate-700 mt-1">LMS PLATFORM - OEMAH SINAU</h2>
+            <div class="text-xs text-slate-500 mt-2">
+                Kelas: <strong><%= currentClass.grade %></strong> | Mata Pelajaran: <strong><%= currentClass.subject %></strong> | Kode: <strong><%= currentClass.code %></strong>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <table class="w-full text-left text-xs border-collapse border border-slate-300">
+            <thead class="bg-slate-100">
+                <tr>
+                    <th class="border border-slate-300 py-2.5 px-3 text-center">No</th>
+                    <th class="border border-slate-300 py-2.5 px-3">Nama Siswa</th>
+                    <th class="border border-slate-300 py-2.5 px-3 text-center">NIS</th>
+                    <th class="border border-slate-300 py-2.5 px-3 text-center">Tugas (30%)</th>
+                    <th class="border border-slate-300 py-2.5 px-3 text-center">Ujian CBT (50%)</th>
+                    <th class="border border-slate-300 py-2.5 px-3 text-center">Presensi (20%)</th>
+                    <th class="border border-slate-300 py-2.5 px-3 text-center">Nilai Akhir</th>
+                    <th class="border border-slate-300 py-2.5 px-3 text-center">Predikat</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% gradeData.forEach(function(g, idx) { %>
+                    <tr>
+                        <td class="border border-slate-300 py-2 px-3 text-center"><%= idx + 1 %></td>
+                        <td class="border border-slate-300 py-2 px-3 font-bold"><%= g.student.name %></td>
+                        <td class="border border-slate-300 py-2 px-3 text-center font-mono"><%= g.student.identity_number %></td>
+                        <td class="border border-slate-300 py-2 px-3 text-center"><%= g.assignmentAvg %></td>
+                        <td class="border border-slate-300 py-2 px-3 text-center"><%= g.examAvg %></td>
+                        <td class="border border-slate-300 py-2 px-3 text-center"><%= g.attendancePct %>%</td>
+                        <td class="border border-slate-300 py-2 px-3 text-center font-black"><%= g.finalScore %></td>
+                        <td class="border border-slate-300 py-2 px-3 text-center font-bold">
+                            <%= g.finalScore >= 90 ? 'A' : (g.finalScore >= 75 ? 'B' : (g.finalScore >= 60 ? 'C' : 'D')) %>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+
+        <!-- Signatures -->
+        <div class="mt-12 flex justify-between text-xs text-slate-800">
+            <div>
+                <p>Mengetahui,</p>
+                <p class="font-bold">Kepala Sekolah</p>
+                <div class="h-16"></div>
+                <p class="font-bold underline">( ........................................ )</p>
+                <p class="text-slate-500">NIP. ........................................</p>
+            </div>
+            <div class="text-right">
+                <p>Dicetak pada: <%= new Date().toLocaleDateString('id-ID') %></p>
+                <p class="font-bold">Guru Pengampu Mata Pelajaran</p>
+                <div class="h-16"></div>
+                <p class="font-bold underline">( Budi Santoso, S.Pd )</p>
+                <p class="text-slate-500">NIP. 198507122010011002</p>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

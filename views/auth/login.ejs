@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Masuk Portal Pembelajaran | <%= (typeof school !== 'undefined' && school && school.name) ? school.name : 'LMS Madrasah' %></title>
+    <meta name="theme-color" content="#064e3b">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" href="https://lms.oemahsinau.online/favicon.png">
+    
+    <!-- Google Fonts: Plus Jakarta Sans & Amiri for Arabic/Islamic elegance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS with custom styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        arabic: ['"Amiri"', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            200: '#a7f3d0',
+                            300: '#6ee7b7',
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            800: '#065f46',
+                            900: '#064e3b',
+                            950: '#022c22',
+                        },
+                        gold: {
+                            50: '#fffbeb',
+                            100: '#fef3c7',
+                            200: '#fde68a',
+                            300: '#fcd34d',
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Geometric Islamic lattice background pattern */
+        .bg-islamic-pattern {
+            background-color: #022c22;
+            background-image: radial-gradient(rgba(16, 185, 129, 0.15) 1px, transparent 1px), radial-gradient(rgba(245, 158, 11, 0.08) 1px, transparent 1px);
+            background-size: 32px 32px;
+            background-position: 0 0, 16px 16px;
+        }
+
+        .glass-panel-luxury {
+            background: rgba(6, 78, 59, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .input-glow:focus-within {
+            box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.15);
+            border-color: #059669;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-brand-500 selection:text-white min-h-screen flex flex-col justify-between">
+
+    <div class="min-h-screen flex flex-col lg:flex-row w-full">
+        
+        <!-- Left Side: Editorial Madrasah Hero (Desktop) -->
+        <div class="hidden lg:flex lg:w-1/2 xl:w-[52%] relative flex-col justify-between p-12 xl:p-16 bg-islamic-pattern text-white overflow-hidden">
+            <!-- Subtle glow aura -->
+            <div class="absolute -top-24 -left-24 w-96 h-96 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <!-- Top Header on Hero -->
+            <div class="relative z-10 flex items-center justify-between">
+                <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/10 border border-white/15 text-xs font-bold text-emerald-200">
+                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span>Portal Resmi Madrasah Digital</span>
+                </div>
+                <div class="text-xs font-semibold text-slate-300 flex items-center gap-2">
+                    <i class="fas fa-calendar-alt text-amber-400"></i>
+                    <span id="currentDateDisplay">Memuat tanggal...</span>
+                </div>
+            </div>
+
+            <!-- Main Hero Centerpiece -->
+            <div class="relative z-10 my-auto py-8">
+                <!-- Logo with Prestige Card -->
+                <div class="flex items-center gap-5 mb-8">
+                    <div class="w-24 h-24 bg-white rounded-3xl p-3 shadow-2xl flex items-center justify-center border-2 border-emerald-400/40 transform hover:scale-105 transition-transform duration-300">
+                        <% if (typeof school !== 'undefined' && school && school.logo) { %>
+                            <img src="<%= school.logo %>" alt="Logo <%= school.name %>" class="w-full h-full object-contain filter drop-shadow-sm">
+                        <% } else { %>
+                            <div class="w-full h-full bg-gradient-to-br from-emerald-600 to-teal-800 rounded-2xl flex items-center justify-center text-white">
+                                <i class="fas fa-mosque text-3xl text-amber-300"></i>
+                            </div>
+                        <% } %>
+                    </div>
+                    <div>
+                        <div class="text-xs uppercase tracking-widest text-amber-400 font-extrabold flex items-center gap-1.5">
+                            <i class="fas fa-certificate text-amber-400"></i>
+                            <span>LMS Terakreditasi <%= (typeof school !== 'undefined' && school && school.akreditasi) ? school.akreditasi : 'A (Unggul)' %></span>
+                        </div>
+                        <h1 class="text-3xl xl:text-4xl font-black text-white tracking-tight leading-tight mt-1">
+                            <%= (typeof school !== 'undefined' && school && school.name) ? school.name : 'MA SUNAN MURIA CLUWAK' %>
+                        </h1>
+                        <p class="text-emerald-200/90 text-xs sm:text-sm font-medium mt-1 flex items-center gap-2">
+                            <span>NPSN: <%= (typeof school !== 'undefined' && school && school.npsn) ? school.npsn : '20363118' %></span>
+                            <span>•</span>
+                            <span>Kec. Cluwak, Kab. Pati</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Arabic Wisdom Card -->
+                <div class="glass-panel-luxury rounded-2xl p-5 mb-8 border border-white/10 shadow-lg">
+                    <p class="font-arabic text-xl text-amber-300 text-right leading-relaxed mb-2" dir="rtl">
+                        طَلَبُ الْعِلْمِ فَرِيضَةٌ عَلَى كُلِّ مُسْلِمٍ
+                    </p>
+                    <p class="text-xs text-emerald-100 font-medium italic">
+                        "Menuntut ilmu adalah kewajiban bagi setiap muslim." <span class="text-slate-300 not-italic font-bold">(HR. Ibnu Majah)</span>
+                    </p>
+                </div>
+
+                <!-- Feature Grid -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex flex-col justify-between">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-sm mb-2 font-bold">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <div class="text-xs font-bold text-white leading-tight">Ruang Belajar Digital</div>
+                        <div class="text-[10px] text-slate-300 mt-1">Materi Canva, PDF & Video</div>
+                    </div>
+
+                    <div class="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex flex-col justify-between">
+                        <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center text-sm mb-2 font-bold">
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <div class="text-xs font-bold text-white leading-tight">Ujian CBT Online</div>
+                        <div class="text-[10px] text-slate-300 mt-1">Anti Pindah Tab & Waktu</div>
+                    </div>
+
+                    <div class="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex flex-col justify-between">
+                        <div class="w-8 h-8 rounded-xl bg-teal-500/20 text-teal-300 flex items-center justify-center text-sm mb-2 font-bold">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="text-xs font-bold text-white leading-tight">Rekap Otomatis</div>
+                        <div class="text-[10px] text-slate-300 mt-1">Presensi & Penilaian Rapor</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Institution Footer -->
+            <div class="relative z-10 pt-4 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+                <span>&copy; 2026 <%= (typeof school !== 'undefined' && school && school.name) ? school.name : 'Madrasah' %></span>
+                <span class="flex items-center gap-1.5 text-emerald-300 font-semibold">
+                    <i class="fas fa-shield-halved"></i> Sistem Pembelajaran Mandiri
+                </span>
+            </div>
+        </div>
+
+        <!-- Right Side: Login Form Section (Desktop & Mobile) -->
+        <div class="w-full lg:w-1/2 xl:w-[48%] flex flex-col justify-between p-6 sm:p-10 md:p-12 lg:p-12 xl:p-16 min-h-screen bg-white">
+            
+            <!-- Mobile Header / Logo Card -->
+            <div class="lg:hidden w-full mb-6">
+                <div class="p-5 rounded-3xl bg-gradient-to-br from-emerald-900 via-teal-900 to-slate-900 text-white shadow-xl relative overflow-hidden">
+                    <div class="flex items-center gap-4 relative z-10">
+                        <div class="w-16 h-16 bg-white rounded-2xl p-2 shadow flex items-center justify-center shrink-0">
+                            <% if (typeof school !== 'undefined' && school && school.logo) { %>
+                                <img src="<%= school.logo %>" alt="Logo" class="w-full h-full object-contain">
+                            <% } else { %>
+                                <i class="fas fa-mosque text-emerald-700 text-2xl"></i>
+                            <% } %>
+                        </div>
+                        <div>
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400/20 text-amber-300 border border-amber-400/30 inline-block mb-1">
+                                Portal LMS Madrasah
+                            </span>
+                            <h2 class="text-lg font-black leading-tight text-white line-clamp-1">
+                                <%= (typeof school !== 'undefined' && school && school.name) ? school.name : 'MA SUNAN MURIA CLUWAK' %>
+                            </h2>
+                            <p class="text-[11px] text-emerald-200 mt-0.5 font-medium">NPSN: 20363118 • Kab. Pati</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login Box Container -->
+            <div class="w-full max-w-md mx-auto my-auto py-2">
+                
+                <!-- Desktop Welcome Label -->
+                <div class="hidden lg:block mb-8">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold mb-3 shadow-xs">
+                        <i class="fas fa-mosque text-emerald-600"></i>
+                        <span><%= (typeof school !== 'undefined' && school && school.name) ? school.name : 'MA SUNAN MURIA CLUWAK' %></span>
+                    </div>
+                    <h2 class="text-3xl font-black text-slate-900 tracking-tight">Selamat Datang 👋</h2>
+                    <p class="text-sm text-slate-500 font-medium mt-1.5">
+                        Silakan masukkan identitas resmi Anda untuk masuk ke sistem.
+                    </p>
+                </div>
+
+                <!-- Role Selector Helper Pills -->
+                <div class="mb-6 p-1.5 bg-slate-100 rounded-2xl flex items-center gap-1 border border-slate-200/70">
+                    <button type="button" id="roleGuruBtn" onclick="selectRole('guru')" class="flex-1 py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all bg-white text-emerald-800 shadow-sm">
+                        <i class="fas fa-chalkboard-teacher text-emerald-600"></i>
+                        <span>Masuk Guru (NIP/Email)</span>
+                    </button>
+                    <button type="button" id="roleSiswaBtn" onclick="selectRole('siswa')" class="flex-1 py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all text-slate-600 hover:text-slate-900">
+                        <i class="fas fa-user-graduate text-slate-500"></i>
+                        <span>Masuk Siswa (NIS)</span>
+                    </button>
+                </div>
+
+                <!-- Flash Alert Messages -->
+                <% if (error) { %>
+                    <div class="mb-5 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold flex items-center gap-3">
+                        <i class="fas fa-circle-exclamation text-base text-red-500 shrink-0"></i>
+                        <span><%= error %></span>
+                    </div>
+                <% } %>
+
+                <% if (success) { %>
+                    <div class="mb-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold flex items-center gap-3">
+                        <i class="fas fa-circle-check text-base text-emerald-500 shrink-0"></i>
+                        <span><%= success %></span>
+                    </div>
+                <% } %>
+
+                <!-- Login Form -->
+                <form action="/auth/attemptLogin" method="POST" class="space-y-4">
+                    
+                    <!-- Identity Input -->
+                    <div>
+                        <label id="identityLabel" for="login_id" class="block text-xs font-extrabold uppercase tracking-wider text-slate-700 mb-1.5 ml-1">
+                            NIP / NUPTK / Email Guru
+                        </label>
+                        <div class="relative rounded-2xl border border-slate-200 bg-slate-50 transition-all input-glow">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                                <i id="identityIcon" class="fas fa-id-badge"></i>
+                            </div>
+                            <input 
+                                type="text" 
+                                name="login_id" 
+                                id="login_id" 
+                                required 
+                                autofocus 
+                                autocomplete="off"
+                                placeholder="Masukkan NIP atau Email Guru Anda" 
+                                class="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-transparent outline-none font-semibold text-slate-800 text-sm placeholder:text-slate-400 placeholder:font-normal"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Password Input -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5 ml-1">
+                            <label for="password" class="block text-xs font-extrabold uppercase tracking-wider text-slate-700">
+                                Kata Sandi
+                            </label>
+                            <a href="/auth/forgot-password" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 transition-colors">
+                                Lupa sandi?
+                            </a>
+                        </div>
+                        <div class="relative rounded-2xl border border-slate-200 bg-slate-50 transition-all input-glow">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <input 
+                                type="password" 
+                                name="password" 
+                                id="password" 
+                                required 
+                                placeholder="••••••••" 
+                                class="w-full pl-11 pr-12 py-3.5 rounded-2xl bg-transparent outline-none font-semibold text-slate-800 text-sm placeholder:text-slate-400"
+                            >
+                            <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-emerald-700 focus:outline-none transition-colors">
+                                <i class="fas fa-eye text-sm" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="w-full mt-2 py-3.5 px-6 rounded-2xl bg-gradient-to-r from-emerald-700 via-emerald-800 to-teal-900 hover:from-emerald-800 hover:to-teal-950 text-white font-extrabold text-sm shadow-lg shadow-emerald-900/20 hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 flex items-center justify-center gap-2 group">
+                        <span>Masuk ke Ruang Kelas</span>
+                        <i class="fas fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                </form>
+
+                <!-- Information Note for Students -->
+                <div class="mt-6 p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 flex items-start gap-3">
+                    <i class="fas fa-circle-info text-amber-600 mt-0.5 shrink-0 text-sm"></i>
+                    <div class="text-xs text-amber-900/90 leading-relaxed font-medium">
+                        <strong>Untuk Siswa:</strong> Akun Anda dibuatkan langsung oleh Guru pengampu. Masuk dengan <strong>Nomor NIS / NISN</strong> dan kata sandi standar yang diberikan guru.
+                    </div>
+                </div>
+
+                <!-- Register Teacher Section -->
+                <div class="mt-6 pt-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+                    <div>
+                        <div class="text-xs font-bold text-slate-700">Guru Baru Madrasah?</div>
+                        <div class="text-[11px] text-slate-400">Daftarkan akun pendidik resmi Anda</div>
+                    </div>
+                    <a href="/auth/register" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-extrabold flex items-center justify-center gap-1.5 transition-colors">
+                        <i class="fas fa-user-plus text-xs"></i>
+                        <span>Daftar Akun Guru</span>
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- Footer Section -->
+            <div class="mt-8 text-center text-xs text-slate-400 font-medium">
+                <p>&copy; 2026 <%= (typeof school !== 'undefined' && school && school.name) ? school.name : 'MA SUNAN MURIA CLUWAK' %> • LMS Oemah Sinau</p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Interactive Script -->
+    <script>
+        // Password Toggle
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+        const eyeIcon = document.querySelector('#eyeIcon');
+
+        if (togglePassword && password && eyeIcon) {
+            togglePassword.addEventListener('click', function () {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                eyeIcon.classList.toggle('fa-eye');
+                eyeIcon.classList.toggle('fa-eye-slash');
+            });
+        }
+
+        // Live Date Display on Desktop Hero
+        const dateDisplay = document.getElementById('currentDateDisplay');
+        if (dateDisplay) {
+            const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            dateDisplay.textContent = new Date().toLocaleDateString('id-ID', options);
+        }
+
+        // Role Selector Helper Tabs
+        function selectRole(role) {
+            const guruBtn = document.getElementById('roleGuruBtn');
+            const siswaBtn = document.getElementById('roleSiswaBtn');
+            const identityLabel = document.getElementById('identityLabel');
+            const identityInput = document.getElementById('login_id');
+            const identityIcon = document.getElementById('identityIcon');
+
+            if (role === 'guru') {
+                guruBtn.className = "flex-1 py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all bg-white text-emerald-800 shadow-sm";
+                siswaBtn.className = "flex-1 py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all text-slate-600 hover:text-slate-900";
+                identityLabel.textContent = "NIP / NUPTK / Email Guru";
+                identityInput.placeholder = "Masukkan NIP atau Email Guru Anda";
+                identityIcon.className = "fas fa-id-badge";
+            } else {
+                siswaBtn.className = "flex-1 py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all bg-white text-emerald-800 shadow-sm";
+                guruBtn.className = "flex-1 py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all text-slate-600 hover:text-slate-900";
+                identityLabel.textContent = "Nomor Induk Siswa (NIS / NISN)";
+                identityInput.placeholder = "Masukkan NIS / NISN Anda (misal: 20261001)";
+                identityIcon.className = "fas fa-user-graduate";
+            }
+            identityInput.focus();
+        }
+    </script>
+</body>
+</html>

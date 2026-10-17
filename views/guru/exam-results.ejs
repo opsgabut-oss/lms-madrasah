@@ -1,0 +1,114 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../layouts/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <a href="/guru/exams" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1.5 mb-2">
+                    <i class="fas fa-arrow-left"></i> Kembali ke Daftar Ujian
+                </a>
+                <h1 class="text-2xl font-black text-slate-800 tracking-tight">Hasil Ujian & Audit Integritas</h1>
+                <p class="text-xs sm:text-sm text-slate-500 font-medium">
+                    <%= exam.class_name %> &mdash; <strong class="text-slate-800"><%= exam.title %></strong>
+                </p>
+            </div>
+            <button onclick="window.print()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-all shadow">
+                <i class="fas fa-print"></i> Cetak Berita Acara Ujian
+            </button>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                    <h2 class="text-base font-black text-slate-800">Rekapitulasi Nilai & Catatan Pelanggaran Siswa</h2>
+                    <p class="text-xs text-slate-400">Toleransi maksimal perpindahan tab: <%= exam.tab_switch_limit %> kali</p>
+                </div>
+                <span class="text-xs font-bold text-slate-500">Total Peserta: <%= results.length %></span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[11px] tracking-wider border-b border-slate-200">
+                        <tr>
+                            <th class="py-4 px-6">Nama Siswa</th>
+                            <th class="py-4 px-6">NIS</th>
+                            <th class="py-4 px-6">Status Ujian</th>
+                            <th class="py-4 px-6">Waktu Selesai</th>
+                            <th class="py-4 px-6">Audit Pindah Tab</th>
+                            <th class="py-4 px-6 text-center">Skor Akhir</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <% if (results.length === 0) { %>
+                            <tr>
+                                <td colspan="6" class="text-center py-8 text-xs text-slate-400">
+                                    Belum ada siswa yang mengerjakan ujian ini.
+                                </td>
+                            </tr>
+                        <% } else { %>
+                            <% results.forEach(function(r) { %>
+                                <tr class="hover:bg-slate-50/80 transition-colors">
+                                    <td class="py-4 px-6 font-bold text-slate-800 flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs">
+                                            <%= r.student_name.charAt(0) %>
+                                        </div>
+                                        <span><%= r.student_name %></span>
+                                    </td>
+                                    <td class="py-4 px-6 font-mono text-xs font-bold text-brand-700"><%= r.identity_number %></td>
+                                    <td class="py-4 px-6">
+                                        <% if (r.status === 'submitted') { %>
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                <i class="fas fa-check-circle"></i> Selesai
+                                            </span>
+                                        <% } else if (r.status === 'in_progress') { %>
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 animate-pulse">
+                                                <i class="fas fa-spinner fa-spin"></i> Sedang Mengerjakan
+                                            </span>
+                                        <% } else { %>
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-500">
+                                                Belum Mulai
+                                            </span>
+                                        <% } %>
+                                    </td>
+                                    <td class="py-4 px-6 text-xs text-slate-500">
+                                        <%= r.end_time || '-' %>
+                                    </td>
+                                    <td class="py-4 px-6">
+                                        <% const tabCount = r.tab_switch_count || 0; %>
+                                        <% if (tabCount === 0) { %>
+                                            <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-600">
+                                                <i class="fas fa-shield-check"></i> Bersih (0x)
+                                            </span>
+                                        <% } else if (tabCount < exam.tab_switch_limit) { %>
+                                            <span class="inline-flex items-center gap-1 text-xs font-bold text-amber-600">
+                                                <i class="fas fa-exclamation-triangle"></i> Terdeteksi <%= tabCount %>x
+                                            </span>
+                                        <% } else { %>
+                                            <span class="inline-flex items-center gap-1 text-xs font-black text-red-600 bg-red-50 px-2 py-0.5 rounded-lg border border-red-200">
+                                                <i class="fas fa-ban"></i> Melanggar Batas (<%= tabCount %>x)
+                                            </span>
+                                        <% } %>
+                                    </td>
+                                    <td class="py-4 px-6 text-center">
+                                        <% if (r.status === 'submitted') { %>
+                                            <span class="text-base font-black <%= r.total_score >= 75 ? 'text-emerald-600' : 'text-slate-800' %>">
+                                                <%= r.total_score %>
+                                            </span>
+                                        <% } else { %>
+                                            <span class="text-xs text-slate-400 font-bold">-</span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<%- include('../layouts/footer') %>

@@ -1,0 +1,223 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../layouts/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
+        <!-- Header & Action -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-black text-slate-800 tracking-tight">Manajemen Ruang Kelas</h1>
+                <p class="text-xs sm:text-sm text-slate-500 font-medium">Buat dan kelola rombel pembelajaran serta bagikan kode kelas ke siswa</p>
+            </div>
+            <button onclick="document.getElementById('createClassModal').classList.remove('hidden')" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-sm shadow-lg shadow-brand-500/20 transition-all hover:scale-105">
+                <i class="fas fa-plus"></i> Buat Ruang Kelas Baru
+            </button>
+        </div>
+
+        <% if (message) { %>
+            <div class="p-4 rounded-xl text-sm font-bold flex items-center gap-3 <%= message.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200' %>">
+                <i class="fas <%= message.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' %> text-lg"></i>
+                <span><%= message.text %></span>
+            </div>
+        <% } %>
+
+        <!-- Classes List -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <% if (classes.length === 0) { %>
+                <div class="col-span-full bg-white p-12 rounded-3xl border border-dashed border-slate-300 text-center">
+                    <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto text-slate-400 text-2xl mb-4">
+                        <i class="fas fa-door-open"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-700">Belum ada kelas terdaftar</h3>
+                    <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">Klik tombol "Buat Ruang Kelas Baru" di atas untuk membuat kelas pertama Anda.</p>
+                </div>
+            <% } else { %>
+                <% classes.forEach(function(cls) { %>
+                    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden hover:shadow-lg transition-all flex flex-col justify-between group">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="px-3 py-1 rounded-xl text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    <%= cls.grade %>
+                                </span>
+                                <div class="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 px-3 py-1 rounded-xl cursor-pointer transition-colors" title="Klik untuk salin kode kelas" onclick="copyClassCode('<%= cls.code %>')">
+                                    <span class="text-xs font-mono font-black text-slate-700"><%= cls.code %></span>
+                                    <i class="fas fa-copy text-[11px] text-slate-400"></i>
+                                </div>
+                            </div>
+
+                            <h2 class="text-lg font-black text-slate-800 group-hover:text-brand-600 transition-colors leading-snug">
+                                <%= cls.name %>
+                            </h2>
+                            <p class="text-xs font-bold text-brand-700 mt-1"><%= cls.subject %></p>
+                            <p class="text-xs text-slate-500 mt-3 line-clamp-3 leading-relaxed">
+                                <%= cls.description || 'Tidak ada deskripsi ruang kelas.' %>
+                            </p>
+                        </div>
+
+                        <div class="p-4 sm:p-5 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2">
+                            <div class="text-xs font-bold text-slate-600 flex items-center gap-1.5 shrink-0">
+                                <i class="fas fa-user-graduate text-emerald-600"></i>
+                                <span><%= cls.student_count %> Siswa</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button type="button" onclick="openEditClassModal(<%= cls.id %>)" class="p-2 rounded-xl bg-slate-200/80 hover:bg-slate-300 text-slate-700 text-xs font-bold transition-all" title="Edit Informasi Kelas">
+                                    <i class="fas fa-pen-to-square"></i>
+                                </button>
+                                <form action="/guru/classes/<%= cls.id %>/delete" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kelas <%= cls.name %>?\n\nPERINGATAN: Seluruh data materi, tugas, ujian CBT, jurnal, dan data siswa di kelas ini akan dihapus permanen!')" class="inline">
+                                    <button type="submit" class="p-2 rounded-xl bg-red-100/80 hover:bg-red-200 text-red-600 text-xs font-bold transition-all" title="Hapus Ruang Kelas">
+                                        <i class="fas fa-trash-can"></i>
+                                    </button>
+                                </form>
+                                <a href="/guru/classes/<%= cls.id %>" class="px-3.5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs flex items-center gap-1.5 transition-all shadow-xs">
+                                    <span>Kelola</span>
+                                    <i class="fas fa-arrow-right text-[10px]"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <script type="application/json" id="class-json-<%= cls.id %>"><%- JSON.stringify(cls) %></script>
+                    </div>
+                <% }); %>
+            <% } %>
+        </div>
+
+        <!-- Modal Edit Kelas -->
+        <div id="editClassModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg font-bold">
+                            <i class="fas fa-pen-to-square"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-black text-slate-800">Edit Ruang Kelas</h3>
+                            <p class="text-xs text-slate-400">Perbarui nama, mapel, tingkat rombel, atau kode kelas</p>
+                        </div>
+                    </div>
+                    <button onclick="document.getElementById('editClassModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 text-lg">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form id="editClassForm" action="" method="POST" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Nama Kelas Lengkap</label>
+                        <input type="text" id="editClassName" name="name" required class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none text-sm font-semibold text-slate-800">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Mata Pelajaran</label>
+                            <input type="text" id="editClassSubject" name="subject" required class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none text-sm font-semibold text-slate-800">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Rombel / Tingkat</label>
+                            <input type="text" id="editClassGrade" name="grade" required class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none text-sm font-semibold text-slate-800">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Kode Kelas</label>
+                        <input type="text" id="editClassCode" name="code" required class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none text-sm font-mono font-bold text-slate-800 uppercase">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Deskripsi / Petunjuk Kelas</label>
+                        <textarea id="editClassDescription" name="description" rows="3" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none text-sm text-slate-800"></textarea>
+                    </div>
+
+                    <div class="pt-4 flex items-center justify-end gap-3">
+                        <button type="button" onclick="document.getElementById('editClassModal').classList.add('hidden')" class="px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-bold text-sm">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-6 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-sm shadow-md transition-all">
+                            Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Buat Kelas Baru -->
+        <div id="createClassModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+            <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 animate-fade-in-up">
+                <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-lg font-bold">
+                            <i class="fas fa-school"></i>
+                        </div>
+                        <h3 class="text-lg font-black text-slate-800">Buat Ruang Kelas Baru</h3>
+                    </div>
+                    <button onclick="document.getElementById('createClassModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 text-lg">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form action="/guru/classes/create" method="POST" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Nama Kelas Lengkap</label>
+                        <input type="text" name="name" required placeholder="Contoh: Pemrograman Web & Bergerak" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none text-sm font-semibold text-slate-800">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Mata Pelajaran</label>
+                            <input type="text" name="subject" required placeholder="Contoh: Pemrograman Web" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none text-sm font-semibold text-slate-800">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Rombel / Tingkat</label>
+                            <input type="text" name="grade" required placeholder="Contoh: XII RPL 1" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none text-sm font-semibold text-slate-800">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Kode Kelas (Opsional, kosongkan untuk buat otomatis)</label>
+                        <input type="text" name="code" placeholder="Contoh: PWPB-12" class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none text-sm font-mono font-bold text-slate-800 uppercase">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Deskripsi / Petunjuk Kelas</label>
+                        <textarea name="description" rows="3" placeholder="Informasi materi dan jadwal KBM untuk siswa..." class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-brand-500 outline-none text-sm text-slate-800"></textarea>
+                    </div>
+
+                    <div class="pt-4 flex items-center justify-end gap-3">
+                        <button type="button" onclick="document.getElementById('createClassModal').classList.add('hidden')" class="px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-bold text-sm">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-6 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-slate-900 font-black text-sm shadow-md transition-all">
+                            Simpan & Terbitkan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    function copyClassCode(code) {
+        navigator.clipboard.writeText(code).then(() => {
+            alert('Kode kelas ' + code + ' berhasil disalin ke clipboard!');
+        });
+    }
+
+    function openEditClassModal(classId) {
+        try {
+            const scriptEl = document.getElementById('class-json-' + classId);
+            if (!scriptEl) return;
+            const cls = JSON.parse(scriptEl.textContent);
+            document.getElementById('editClassForm').action = '/guru/classes/' + cls.id + '/update';
+            document.getElementById('editClassName').value = cls.name || '';
+            document.getElementById('editClassSubject').value = cls.subject || '';
+            document.getElementById('editClassGrade').value = cls.grade || '';
+            document.getElementById('editClassCode').value = cls.code || '';
+            document.getElementById('editClassDescription').value = cls.description || '';
+            document.getElementById('editClassModal').classList.remove('hidden');
+        } catch (err) {
+            console.error('Gagal membuka modal edit kelas:', err);
+        }
+    }
+</script>
+
+<%- include('../layouts/footer') %>

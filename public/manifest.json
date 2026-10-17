@@ -1,0 +1,22 @@
+{
+  "name": "Madrasah Digital - Oemah Sinau LMS",
+  "short_name": "Madrasah LMS",
+  "description": "Aplikasi Pembelajaran & Ujian CBT Madrasah Digital",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#064e3b",
+  "theme_color": "#059669",
+  "icons": [
+    {
+      "src": "https://lms.oemahsinau.online/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://lms.oemahsinau.online/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

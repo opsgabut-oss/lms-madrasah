@@ -1,0 +1,131 @@
+<%- include('../layouts/header') %>
+<%- include('../layouts/navbar') %>
+
+<div class="flex-1 flex max-w-7xl w-full mx-auto">
+    <%- include('../layouts/sidebar') %>
+
+    <main class="flex-1 p-4 sm:p-6 lg:p-8 space-y-6">
+        <div>
+            <h1 class="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2.5">
+                <i class="fas fa-mosque text-emerald-600"></i> Profil Lembaga Madrasah
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-500 font-medium">Mengenal visi, misi, pimpinan, dan identitas resmi madrasah tempat Anda menuntut ilmu</p>
+        </div>
+
+        <!-- Hero Card -->
+        <div class="bg-gradient-to-r from-slate-900 via-brand-950 to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-brand-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left">
+                <!-- Logo -->
+                <div class="w-24 h-24 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 p-2 flex items-center justify-center shrink-0 shadow-2xl">
+                    <% if (madrasah.logo) { %>
+                        <img src="<%= madrasah.logo %>" alt="Logo Madrasah" class="w-full h-full object-contain">
+                    <% } else { %>
+                        <div class="w-full h-full rounded-2xl bg-gradient-to-br from-emerald-500 to-brand-700 flex items-center justify-center text-3xl text-white">
+                            <i class="fas fa-mosque"></i>
+                        </div>
+                    <% } %>
+                </div>
+
+                <div class="space-y-2 flex-1">
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                        <span class="px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-500 text-slate-950">
+                            <%= madrasah.jenjang || 'Madrasah Aliyah (MA)' %>
+                        </span>
+                        <span class="px-3 py-0.5 rounded-full text-xs font-black uppercase tracking-wider bg-white/10 text-brand-300 border border-white/20">
+                            Akreditasi: <%= madrasah.akreditasi || 'A (Unggul)' %>
+                        </span>
+                    </div>
+
+                    <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                        <%= madrasah.name %>
+                    </h2>
+
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 text-xs text-slate-300 font-mono pt-1">
+                        <span><strong class="text-brand-300 font-sans">NSM:</strong> <%= madrasah.nsm || '131132780001' %></span>
+                        <span>•</span>
+                        <span><strong class="text-brand-300 font-sans">NPSN:</strong> <%= madrasah.npsn || '20278910' %></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3 Highlight Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <!-- Pimpinan -->
+            <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm flex items-start gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Kepala Madrasah</span>
+                    <h3 class="text-sm font-black text-slate-800 mt-0.5"><%= madrasah.headmaster || 'Dr. H. Muhammad Zain, M.Pd.I' %></h3>
+                    <p class="text-xs text-slate-500 font-mono mt-0.5">NIP: <%= madrasah.headmaster_nip || '197508152002121003' %></p>
+                </div>
+            </div>
+
+            <!-- Kontak -->
+            <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm flex items-start gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0">
+                    <i class="fas fa-envelope-open-text"></i>
+                </div>
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Layanan & Email</span>
+                    <h3 class="text-sm font-bold text-slate-800 mt-0.5"><%= madrasah.email || 'info@madrasah.sch.id' %></h3>
+                    <p class="text-xs text-slate-500 truncate mt-0.5"><%= madrasah.website || 'www.madrasah.sch.id' %></p>
+                </div>
+            </div>
+
+            <!-- Alamat -->
+            <div class="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm flex items-start gap-4">
+                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shrink-0">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <div>
+                    <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">Alamat Madrasah</span>
+                    <p class="text-xs text-slate-700 font-semibold mt-1 leading-relaxed line-clamp-2">
+                        <%= madrasah.address || 'Jl. Pendidikan Islam No. 45, Kompleks Madrasah Terpadu' %>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visi & Misi Madrasah -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Visi -->
+            <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-3">
+                <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-slate-800">Visi Madrasah</h3>
+                        <p class="text-xs text-slate-400">Tujuan dan cita-cita utama madrasah kita</p>
+                    </div>
+                </div>
+                <div class="p-5 rounded-2xl bg-emerald-50/50 border border-emerald-100 text-sm font-bold text-slate-800 leading-relaxed italic">
+                    "<%= madrasah.vision || 'Terwujudnya Generasi Muslim yang Berakhlakul Karimah, Unggul dalam Prestasi Akademik, Sains, Teknologi, dan Berwawasan Lingkungan Global.' %>"
+                </div>
+            </div>
+
+            <!-- Misi -->
+            <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-3">
+                <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
+                    <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-lg">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-slate-800">Misi Madrasah</h3>
+                        <p class="text-xs text-slate-400">Langkah nyata mewujudkan generasi berprestasi</p>
+                    </div>
+                </div>
+                <div class="text-sm text-slate-700 leading-relaxed whitespace-pre-line p-5 rounded-2xl bg-slate-50 border border-slate-100">
+<%= madrasah.mission || '1. Menanamkan nilai-nilai keimanan dan ketakwaan melalui pembiasaan ibadah dan akhlak mulia.\n2. Menyelenggarakan proses pembelajaran berbasis digital yang inovatif dan kolaboratif.\n3. Mengembangkan potensi bakat riset sains dan teknologi informasi.\n4. Membangun tata kelola madrasah yang islami, akuntabel, dan berdaya saing global.' %>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<%- include('../layouts/footer') %>
